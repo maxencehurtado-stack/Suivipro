@@ -72,7 +72,7 @@
           <div>
             <div class="flex items-center gap-2">
               <h1 class="text-base font-extrabold tracking-tight text-white">SUIVI<span class="text-blue-500">PRO</span></h1>
-              <span class="text-[9px] font-mono font-semibold bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded border border-blue-500/20">v2.2</span>
+              <span class="text-[9px] font-mono font-semibold bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded border border-blue-500/20">v2.3</span>
             </div>
             <p class="text-[11px] text-slate-400 font-medium leading-none mt-0.5">Heures, Repas & Absences</p>
           </div>
@@ -171,7 +171,7 @@
 
             <div class="flex items-center space-x-3">
               <button onclick="openChangePinModal()" class="text-xs bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 px-3.5 py-2.5 rounded-xl font-semibold border border-slate-200 dark:border-slate-800 transition">🔑 Modifier mon PIN</button>
-              <button onclick="fetchOnlineData()" class="text-xs bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 hover:bg-blue-100 px-3.5 py-2.5 rounded-xl font-semibold border border-blue-200 dark:border-blue-900 transition flex items-center gap-1.5">
+              <button onclick="fetchOnlineData(true)" class="text-xs bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 hover:bg-blue-100 px-3.5 py-2.5 rounded-xl font-semibold border border-blue-200 dark:border-blue-900 transition flex items-center gap-1.5">
                 🔄 Synchroniser Cloud
               </button>
             </div>
@@ -418,9 +418,9 @@
       managers: JSON.parse(localStorage.getItem('sp_managers')) || [
         { id: "m1", name: "Gestionnaire Principal", pin: "2157" }
       ],
-      drivers: JSON.parse(localStorage.getItem('sp_drivers')) || [], // Nettoyé : plus de chauffeur d'exemple par défaut
+      drivers: JSON.parse(localStorage.getItem('sp_drivers')) || [],
       currentMonth: new Date().toISOString().slice(0, 7),
-      entries: JSON.parse(localStorage.getItem('sp_entries')) || {}
+      entries: {} // Le Cloud devient la source principale pour les pointages
     };
 
     function toggleDarkMode() {
@@ -483,7 +483,6 @@
     function saveState() {
       localStorage.setItem('sp_managers', JSON.stringify(state.managers));
       localStorage.setItem('sp_drivers', JSON.stringify(state.drivers));
-      localStorage.setItem('sp_entries', JSON.stringify(state.entries));
       populateDriverSelects();
       populateManagerSelects();
     }
@@ -495,14 +494,22 @@
       populateManagerSelects();
       updateLiveDateTime();
       setInterval(updateLiveDateTime, 30000);
-      fetchOnlineData();
+      
+      // Charger les données en direct du Cloud au démarrage
+      fetchOnlineData(false);
     }
 
-    function fetchOnlineData() {
+    // FONCTION DE SYNCHRONISATION CLOUD CORRIGÉE ET FIABLE
+    function fetchOnlineData(showAlert = false) {
       fetch(CONFIG.SCRIPT_URL)
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data)) {
+            state.entries = {}; // Remise à zéro pour forcer la lecture exacte du Cloud
+            
+            // Reconstitution dynamique des chauffeurs depuis les données Cloud si le cache local est vide
+            const cloudDriversMap = new Map();
+
             data.forEach(row => {
               if (row.DriverId && row.Date) {
                 const key = `${row.DriverId}_${row.Date}`;
@@ -513,23 +520,48 @@
                   repasSoir: row.RepasSoir === 'OUI',
                   absence: row.Absence || 'WORK'
                 };
+
+                if (row.DriverId && row.DriverName) {
+                  cloudDriversMap.set(row.DriverId, row.DriverName);
+                }
               }
             });
+
+            // Si des chauffeurs existent dans le cloud mais pas en local, on les intègre
+            cloudDriversMap.forEach((name, id) => {
+              if (!state.drivers.some(d => d.id === id)) {
+                state.drivers.push({ id: id, name: name, matricule: "", plate: "", pin: "0000" });
+              }
+            });
+
             saveState();
+
             if (state.currentUser) {
               if (state.currentUser.role === 'driver') loadDriverMonthData();
               if (state.currentUser.role === 'manager') loadManagerData();
               if (state.currentUser.role === 'admin') loadAdminData();
             }
+
+            if (showAlert) {
+              alert("Synchronisation Cloud réussie ! Données à jour.");
+            }
           }
         })
-        .catch(err => console.log("Synchronisation Cloud :", err));
+        .catch(err => {
+          console.error("Erreur de synchronisation Cloud :", err);
+          if (showAlert) {
+            alert("Erreur : Impossible de joindre le serveur Google Sheets. Vérifiez votre connexion.");
+          }
+        });
     }
 
     function populateDriverSelects() {
       const loginSelect = document.getElementById('login-driver-id');
       const managerSelect = document.getElementById('manager-select-driver');
       if (!loginSelect || !managerSelect) return;
+
+      const currentLoginVal = loginSelect.value;
+      const currentManagerVal = managerSelect.value;
 
       loginSelect.innerHTML = '<option value="">-- Sélectionner un chauffeur --</option>';
       managerSelect.innerHTML = '';
@@ -538,6 +570,10 @@
         loginSelect.innerHTML += `<option value="${d.id}">${d.name}</option>`;
         managerSelect.innerHTML += `<option value="${d.id}">${d.name}</option>`;
       });
+
+      if (currentLoginVal) loginSelect.value = currentLoginVal;
+      if (currentManagerVal) managerSelect.value = currentManagerVal;
+
       renderDriversList();
     }
 
@@ -607,6 +643,9 @@
       document.getElementById('driver-space').classList.add('hidden');
       document.getElementById('manager-space').classList.add('hidden');
       document.getElementById('admin-space').classList.add('hidden');
+
+      // Actualisation des données en direct à l'affichage des écrans
+      fetchOnlineData(false);
 
       if (state.currentUser.role === 'admin') {
         document.getElementById('admin-space').classList.remove('hidden');
@@ -925,7 +964,6 @@
         state.entries[entryKey] = { matin: '', repasMidi: false, apresMidi: '', repasSoir: false, absence: 'WORK' };
       }
       state.entries[entryKey][field] = val;
-      saveState();
 
       syncToGoogleSheets(targetDriverId, dateStr, state.entries[entryKey]);
 
@@ -959,8 +997,15 @@
         totalHHMM: centToHHMM(totalCent)
       });
 
-      const img = new Image();
-      img.src = `${CONFIG.SCRIPT_URL}?${params.toString()}&_=` + new Date().getTime();
+      // Utilisation d'une requête fetch propre avec no-cors pour garantir l'envoi au Cloud
+      fetch(`${CONFIG.SCRIPT_URL}?${params.toString()}`, {
+        method: 'GET',
+        mode: 'no-cors'
+      }).then(() => {
+        console.log("Donnée envoyée au Cloud avec succès.");
+      }).catch(err => {
+        console.error("Erreur lors de l'envoi au Cloud :", err);
+      });
     }
 
     function loadManagerData() {
