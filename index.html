@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suivi Pro - Version 20261021.01</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    @media print {
+      body * { visibility: hidden; }
+      #printable-area, #printable-area * { visibility: visible; }
+      #printable-area { position: absolute; left: 0; top: 0; width: 100%; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800 font-sans pb-10">
+
+  <!-- EN-TÊTE PRINCIPAL -->
+  <header class="bg-slate-900 text-white shadow-md sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <div class="bg-blue-600 p-2 rounded-lg font-black text-xl">SP</div>
+        <div>
+          <h1 class="text-xl font-bold leading-none">Suivi Pro</h1>
+          <p class="text-xs text-slate-400 mt-1">Version 20261021.01</p>
+        </div>
+      </div>
+      <div id="user-status-bar" class="flex items-center space-x-2 text-sm">
+        <span id="current-user-badge" class="bg-slate-800 px-3 py-1.5 rounded-full text-slate-300 border border-slate-700">Non connecté</span>
+        <button id="logout-btn" onclick="logout()" class="hidden bg-rose-600 hover:bg-rose-700 px-3 py-1.5 rounded-full text-white font-medium text-xs transition">Déconnexion</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 mt-6">
+
+    <!-- ÉCRAN DE CONNEXION -->
+    <section id="login-view" class="max-w-md mx-auto bg-white p-6 rounded-2xl shadow-xl border border-slate-200">
+      <h2 class="text-2xl font-bold text-center text-slate-800 mb-6">Connexion</h2>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-1">Rôle / Profil</label>
+          <select id="login-role" onchange="toggleLoginFields()" class="w-full p-3 border rounded-xl bg-slate-50 focus:ring-2 focus:ring-blue-500">
+            <option value="driver">Chauffeur / Livreur</option>
+            <option value="manager">Espace Gestionnaire</option>
+          </select>
+        </div>
+
+        <div id="driver-select-container">
+          <label class="block text-sm font-semibold text-slate-700 mb-1">Sélectionner votre Nom</label>
+          <select id="login-driver-id" class="w-full p-3 border rounded-xl bg-slate-50 focus:ring-2 focus:ring-blue-500">
+            <option value="">-- Choisir un chauffeur --</option>
+          </select>
+        </div>
+
+        <div>
+          <label id="pin-label" class="block text-sm font-semibold text-slate-700 mb-1">Code PIN Chauffeur</label>
+          <input type="password" id="login-pin" maxlength="6" inputmode="numeric" placeholder="••••" class="w-full p-3 border rounded-xl bg-slate-50 text-center tracking-widest text-xl focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div id="login-error" class="hidden text-red-600 text-sm font-medium text-center bg-red-50 p-3 rounded-lg border border-red-200"></div>
+
+        <button onclick="handleLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg transition">Se Connecter</button>
+      </div>
+    </section>
+
+    <!-- ACCÈS ACCORDÉ -->
+    <div id="app-content" class="hidden">
+
+      <!-- ESPACE CHAUFFEUR -->
+      <section id="driver-space" class="space-y-6">
+        <div class="bg-white p-4 rounded-xl shadow-sm border flex flex-col md:flex-row justify-between items-center gap-4">
+          <div class="flex items-center space-x-3">
+            <input type="month" id="driver-month-picker" onchange="loadDriverMonthData()" class="p-2 border rounded-lg font-bold text-slate-700">
+            <button onclick="changeMonth(-1)" class="px-3 py-1.5 bg-slate-200 rounded-lg hover:bg-slate-300">◄</button>
+            <button onclick="changeMonth(1)" class="px-3 py-1.5 bg-slate-200 rounded-lg hover:bg-slate-300">►</button>
+          </div>
+          <div class="flex items-center space-x-2">
+            <span id="sync-status" class="text-xs px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 font-medium">● Connecté Cloud Google</span>
+          </div>
+        </div>
+
+        <div id="month-grid" class="space-y-4"></div>
+      </section>
+
+      <!-- ESPACE GESTIONNAIRE -->
+      <section id="manager-space" class="hidden space-y-6">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4 gap-4">
+            <div>
+              <h2 class="text-2xl font-bold text-slate-900">Espace Gestionnaire</h2>
+              <p class="text-sm text-slate-500">Gestion des chauffeurs et récapitulatif comptable</p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button onclick="showTab('tab-drivers')" class="px-4 py-2 bg-blue-50 text-blue-700 font-semibold rounded-lg hover:bg-blue-100">Gérer les Chauffeurs</button>
+              <button onclick="showTab('tab-summary')" class="px-4 py-2 bg-slate-100 text-slate-700 font-semibold rounded-lg hover:bg-slate-200">Consulter & Exporter</button>
+            </div>
+          </div>
+
+          <!-- ONGLET CHAUFFEURS -->
+          <div id="tab-drivers" class="space-y-6">
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
+              <h3 class="font-bold text-slate-800 text-lg">Ajouter un Chauffeur</h3>
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                <input type="text" id="new-driver-name" placeholder="Nom Prénom" class="p-2.5 border rounded-lg">
+                <input type="text" id="new-driver-matricule" placeholder="Matricule" class="p-2.5 border rounded-lg">
+                <input type="text" id="new-driver-plate" placeholder="Immatriculation" class="p-2.5 border rounded-lg">
+                <input type="password" id="new-driver-pin" maxlength="6" placeholder="Code PIN (ex: 1234)" class="p-2.5 border rounded-lg">
+              </div>
+              <button onclick="saveDriver()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-lg font-bold shadow">Enregistrer</button>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse bg-white rounded-xl overflow-hidden border">
+                <thead>
+                  <tr class="bg-slate-800 text-white text-sm">
+                    <th class="p-3">Nom</th>
+                    <th class="p-3">Matricule</th>
+                    <th class="p-3">Immatriculation</th>
+                    <th class="p-3">Code PIN</th>
+                    <th class="p-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="drivers-list-table"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ONGLET RÉCAPITULATIF / EXPORT -->
+          <div id="tab-summary" class="hidden space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border">
+              <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1">Chauffeur</label>
+                <select id="manager-select-driver" onchange="loadManagerData()" class="w-full p-2.5 border rounded-lg bg-white"></select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1">Période</label>
+                <input type="month" id="manager-month-picker" onchange="loadManagerData()" class="w-full p-2.5 border rounded-lg bg-white">
+              </div>
+              <div class="flex items-end">
+                <button onclick="exportToPDF()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold p-2.5 rounded-lg shadow">Exporter PDF Comptabilité</button>
+              </div>
+            </div>
+
+            <div id="printable-area" class="bg-white p-6 rounded-xl border shadow-sm">
+              <div id="manager-report-content"></div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script>
+    const CONFIG = {
+      SCRIPT_URL: "https://script.google.com/macros/s/AKfycbzyS8IP1wUPXD2XmcfE-sk7IUi6V00skLYf-l-hJkjOwKG7wYugmCPTVF1eIFC_UiQ/exec",
+      MANAGER_PIN: "2157"
+    };
+
+    let state = {
+      currentUser: null,
+      drivers: JSON.parse(localStorage.getItem('sp_drivers')) || [
+        { id: "d1", name: "Chauffeur Exemple", matricule: "CH-01", plate: "AA-123-AA", pin: "0000" }
+      ],
+      currentMonth: new Date().toISOString().slice(0, 7),
+      entries: JSON.parse(localStorage.getItem('sp_entries')) || {}
+    };
+
+    function saveState() {
+      localStorage.setItem('sp_drivers', JSON.stringify(state.drivers));
+      localStorage.setItem('sp_entries', JSON.stringify(state.entries));
+      populateDriverSelects();
+    }
+
+    function init() {
+      document.getElementById('driver-month-picker').value = state.currentMonth;
+      document.getElementById('manager-month-picker').value = state.currentMonth;
+      populateDriverSelects();
+      toggleLoginFields();
+      fetchOnlineData();
+    }
+
+    function fetchOnlineData() {
+      fetch(CONFIG.SCRIPT_URL)
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            data.forEach(row => {
+              if (row.DriverId && row.Date) {
+                const key = `${row.DriverId}_${row.Date}`;
+                state.entries[key] = {
+                  matin: row.Matin || '',
+                  repasMidi: row.RepasMidi === 'OUI',
+                  apresMidi: row.ApresMidi || '',
+                  repasSoir: row.RepasSoir === 'OUI'
+                };
+              }
+            });
+            saveState();
+            if (state.currentUser) {
+              if (state.currentUser.role === 'driver') loadDriverMonthData();
+              if (state.currentUser.role === 'manager') loadManagerData();
+            }
+          }
+        })
+        .catch(err => console.log("Chargement en ligne :", err));
+    }
+
+    function populateDriverSelects() {
+      const loginSelect = document.getElementById('login-driver-id');
+      const managerSelect = document.getElementById('manager-select-driver');
+      loginSelect.innerHTML = '<option value="">-- Choisir un chauffeur --</option>';
+      managerSelect.innerHTML = '';
+
+      state.drivers.forEach(d => {
+        loginSelect.innerHTML += `<option value="${d.id}">${d.name}</option>`;
+        managerSelect.innerHTML += `<option value="${d.id}">${d.name}</option>`;
+      });
+      renderDriversList();
+    }
+
+    function toggleLoginFields() {
+      const role = document.getElementById('login-role').value;
+      const driverContainer = document.getElementById('driver-select-container');
+      const pinLabel = document.getElementById('pin-label');
+      
+      if (role === 'manager') {
+        driverContainer.classList.add('hidden');
+        pinLabel.innerText = "Code PIN Gestionnaire";
+      } else {
+        driverContainer.classList.remove('hidden');
+        pinLabel.innerText = "Code PIN Chauffeur";
+      }
+    }
+
+    function handleLogin() {
+      const role = document.getElementById('login-role').value;
+      const pin = document.getElementById('login-pin').value;
+      const errEl = document.getElementById('login-error');
+      errEl.classList.add('hidden');
+
+      if (role === 'manager') {
+        if (pin === CONFIG.MANAGER_PIN) {
+          state.currentUser = { role: 'manager', name: 'Gestionnaire' };
+          showAppScreen();
+        } else {
+          showError("Code PIN Gestionnaire incorrect (Défaut: 2157)");
+        }
+      } else {
+        const driverId = document.getElementById('login-driver-id').value;
+        const driver = state.drivers.find(d => d.id === driverId);
+        
+        if (!driver) {
+          showError("Veuillez sélectionner un chauffeur.");
+          return;
+        }
+        if (driver.pin && driver.pin !== pin) {
+          showError("Code PIN chauffeur incorrect.");
+          return;
+        }
+
+        state.currentUser = { role: 'driver', ...driver };
+        showAppScreen();
+      }
+    }
+
+    function showError(msg) {
+      const errEl = document.getElementById('login-error');
+      errEl.innerText = msg;
+      errEl.classList.remove('hidden');
+    }
+
+    function showAppScreen() {
+      document.getElementById('login-view').classList.add('hidden');
+      document.getElementById('app-content').classList.remove('hidden');
+      document.getElementById('logout-btn').classList.remove('hidden');
+      
+      const badge = document.getElementById('current-user-badge');
+      badge.innerText = state.currentUser.name + (state.currentUser.role === 'manager' ? ' (Admin)' : '');
+
+      if (state.currentUser.role === 'manager') {
+        document.getElementById('driver-space').classList.add('hidden');
+        document.getElementById('manager-space').classList.remove('hidden');
+        loadManagerData();
+      } else {
+        document.getElementById('manager-space').classList.add('hidden');
+        document.getElementById('driver-space').classList.remove('hidden');
+        loadDriverMonthData();
+      }
+    }
+
+    function logout() {
+      state.currentUser = null;
+      document.getElementById('login-view').classList.remove('hidden');
+      document.getElementById('app-content').classList.add('hidden');
+      document.getElementById('logout-btn').classList.add('hidden');
+      document.getElementById('login-pin').value = '';
+    }
+
+    function saveDriver() {
+      const name = document.getElementById('new-driver-name').value.trim();
+      const matricule = document.getElementById('new-driver-matricule').value.trim();
+      const plate = document.getElementById('new-driver-plate').value.trim();
+      const pin = document.getElementById('new-driver-pin').value.trim();
+
+      if (!name) return alert("Le nom du chauffeur est obligatoire.");
+
+      state.drivers.push({
+        id: 'd_' + Date.now(),
+        name,
+        matricule,
+        plate,
+        pin: pin || '0000'
+      });
+      saveState();
+
+      document.getElementById('new-driver-name').value = '';
+      document.getElementById('new-driver-matricule').value = '';
+      document.getElementById('new-driver-plate').value = '';
+      document.getElementById('new-driver-pin').value = '';
+    }
+
+    function deleteDriver(driverId) {
+      if (confirm("Voulez-vous vraiment supprimer ce chauffeur ?")) {
+        state.drivers = state.drivers.filter(d => d.id !== driverId);
+        saveState();
+      }
+    }
+
+    function renderDriversList() {
+      const tbody = document.getElementById('drivers-list-table');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      state.drivers.forEach(d => {
+        tbody.innerHTML += `
+          <tr class="border-b hover:bg-slate-50 text-sm">
+            <td class="p-3 font-semibold">${d.name}</td>
+            <td class="p-3 text-slate-600">${d.matricule || '-'}</td>
+            <td class="p-3 text-slate-600">${d.plate || '-'}</td>
+            <td class="p-3 font-mono text-slate-600">${d.pin || '0000'}</td>
+            <td class="p-3 text-right">
+              <button onclick="deleteDriver('${d.id}')" class="bg-rose-100 hover:bg-rose-200 text-rose-700 px-3 py-1 rounded font-bold text-xs">Supprimer</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function showTab(tabId) {
+      document.getElementById('tab-drivers').classList.add('hidden');
+      document.getElementById('tab-summary').classList.add('hidden');
+      document.getElementById(tabId).classList.remove('hidden');
+    }
+
+    function centToHHMM(cent) {
+      if (!cent || isNaN(cent)) return "0h00";
+      const val = parseFloat(cent);
+      const hours = Math.floor(val);
+      const minutes = Math.round((val - hours) * 60);
+      return `${hours}h${minutes < 10 ? '0' : ''}${minutes}`;
+    }
+
+    function loadDriverMonthData() {
+      const yearMonth = document.getElementById('driver-month-picker').value;
+      state.currentMonth = yearMonth;
+      const grid = document.getElementById('month-grid');
+      grid.innerHTML = '';
+
+      const [year, month] = yearMonth.split('-').map(Number);
+      const daysInMonth = new Date(year, month, 0).getDate();
+
+      let currentWeekHtml = '';
+      let weekCentSum = 0;
+      let weekMidiSum = 0;
+      let weekSoirSum = 0;
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${yearMonth}-${day < 10 ? '0' + day : day}`;
+        const dateObj = new Date(year, month - 1, day);
+        const dayName = dateObj.toLocaleDateString('fr-FR', { weekday: 'short' });
+        const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+
+        const entryKey = `${state.currentUser.id}_${dateStr}`;
+        const entry = state.entries[entryKey] || { matin: '', repasMidi: false, apresMidi: '', repasSoir: false };
+
+        const matinVal = parseFloat(entry.matin) || 0;
+        const amVal = parseFloat(entry.apresMidi) || 0;
+        const totalCent = (matinVal + amVal).toFixed(2);
+
+        weekCentSum += parseFloat(totalCent);
+        if (entry.repasMidi) weekMidiSum++;
+        if (entry.repasSoir) weekSoirSum++;
+
+        currentWeekHtml += `
+          <div class="p-3 bg-white rounded-lg border flex flex-col md:flex-row justify-between items-center gap-3 ${isWeekend ? 'bg-amber-50/50' : ''}">
+            <div class="w-full md:w-32 font-bold text-slate-700 capitalize">${dayName} ${day}</div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 w-full">
+              <div>
+                <label class="text-[10px] text-slate-400 font-bold block">Matin (cent.)</label>
+                <input type="number" step="0.01" value="${entry.matin}" onchange="updateEntry('${dateStr}', 'matin', this.value)" placeholder="ex: 4.80" class="w-full p-2 border rounded text-sm bg-slate-50">
+              </div>
+
+              <div class="flex items-center space-x-2 pt-3">
+                <input type="checkbox" id="midi_${dateStr}" ${entry.repasMidi ? 'checked' : ''} onchange="updateEntry('${dateStr}', 'repasMidi', this.checked)" class="w-5 h-5 text-blue-600 rounded">
+                <label for="midi_${dateStr}" class="text-xs font-semibold text-slate-700">Repas Midi</label>
+              </div>
+
+              <div>
+                <label class="text-[10px] text-slate-400 font-bold block">A.-Midi (cent.)</label>
+                <input type="number" step="0.01" value="${entry.apresMidi}" onchange="updateEntry('${dateStr}', 'apresMidi', this.value)" placeholder="ex: 3.50" class="w-full p-2 border rounded text-sm bg-slate-50">
+              </div>
+
+              <div class="flex items-center space-x-2 pt-3">
+                <input type="checkbox" id="soir_${dateStr}" ${entry.repasSoir ? 'checked' : ''} onchange="updateEntry('${dateStr}', 'repasSoir', this.checked)" class="w-5 h-5 text-blue-600 rounded">
+                <label for="soir_${dateStr}" class="text-xs font-semibold text-slate-700">Repas Soir</label>
+              </div>
+            </div>
+
+            <div class="w-full md:w-36 text-right border-t md:border-t-0 pt-2 md:pt-0">
+              <span class="text-xs text-slate-400 font-bold block">Total Jour</span>
+              <span class="font-bold text-blue-600">${totalCent} c</span>
+              <span class="text-xs text-slate-500 font-mono block">(${centToHHMM(totalCent)})</span>
+            </div>
+          </div>
+        `;
+
+        if (dateObj.getDay() === 0 || day === daysInMonth) {
+          grid.innerHTML += `
+            <div class="bg-slate-200/60 p-4 rounded-xl space-y-3">
+              ${currentWeekHtml}
+              <div class="bg-slate-800 text-white p-3 rounded-lg flex justify-between items-center text-sm font-bold">
+                <span>TOTAL SEMAINE</span>
+                <div class="flex space-x-4">
+                  <span>Midi: ${weekMidiSum}</span>
+                  <span>Soir: ${weekSoirSum}</span>
+                  <span class="text-amber-400">${weekCentSum.toFixed(2)} c (${centToHHMM(weekCentSum)})</span>
+                </div>
+              </div>
+            </div>
+          `;
+          currentWeekHtml = '';
+          weekCentSum = 0; weekMidiSum = 0; weekSoirSum = 0;
+        }
+      }
+    }
+
+    function updateEntry(dateStr, field, val) {
+      const entryKey = `${state.currentUser.id}_${dateStr}`;
+      if (!state.entries[entryKey]) {
+        state.entries[entryKey] = { matin: '', repasMidi: false, apresMidi: '', repasSoir: false };
+      }
+      state.entries[entryKey][field] = val;
+      saveState();
+
+      // Envoi garanti via Image ping (Bypasse 100% des restrictions CORS)
+      syncToGoogleSheets(dateStr, state.entries[entryKey]);
+      loadDriverMonthData();
+    }
+
+    function syncToGoogleSheets(dateStr, entryData) {
+      const matinVal = parseFloat(entryData.matin) || 0;
+      const amVal = parseFloat(entryData.apresMidi) || 0;
+      const totalCent = (matinVal + amVal).toFixed(2);
+
+      const params = new URLSearchParams({
+        action: "saveEntry",
+        driverId: state.currentUser.id,
+        driverName: state.currentUser.name,
+        yearMonth: state.currentMonth,
+        date: dateStr,
+        matin: entryData.matin || '',
+        repasMidi: entryData.repasMidi ? 'OUI' : 'NON',
+        apresMidi: entryData.apresMidi || '',
+        repasSoir: entryData.repasSoir ? 'OUI' : 'NON',
+        totalCent: totalCent,
+        totalHHMM: centToHHMM(totalCent)
+      });
+
+      const img = new Image();
+      img.src = `${CONFIG.SCRIPT_URL}?${params.toString()}&_=` + new Date().getTime();
+    }
+
+    function loadManagerData() {
+      const driverId = document.getElementById('manager-select-driver').value;
+      const yearMonth = document.getElementById('manager-month-picker').value;
+      const reportEl = document.getElementById('manager-report-content');
+
+      const driver = state.drivers.find(d => d.id === driverId);
+      if (!driver) {
+        reportEl.innerHTML = '<p class="text-center text-slate-500">Aucun chauffeur sélectionné.</p>';
+        return;
+      }
+
+      const [year, month] = yearMonth.split('-').map(Number);
+      const daysInMonth = new Date(year, month, 0).getDate();
+
+      let totalMonthCent = 0;
+      let totalMonthMidi = 0;
+      let totalMonthSoir = 0;
+
+      let rowsHtml = '';
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${yearMonth}-${day < 10 ? '0' + day : day}`;
+        const entryKey = `${driver.id}_${dateStr}`;
+        const entry = state.entries[entryKey] || { matin: '', repasMidi: false, apresMidi: '', repasSoir: false };
+
+        const matinVal = parseFloat(entry.matin) || 0;
+        const amVal = parseFloat(entry.apresMidi) || 0;
+        const totalCent = (matinVal + amVal).toFixed(2);
+
+        totalMonthCent += parseFloat(totalCent);
+        if (entry.repasMidi) totalMonthMidi++;
+        if (entry.repasSoir) totalMonthSoir++;
+
+        rowsHtml += `
+          <tr class="border-b text-sm">
+            <td class="p-2">${dateStr}</td>
+            <td class="p-2">${entry.matin || '-'}</td>
+            <td class="p-2">${entry.repasMidi ? 'OUI' : '-'}</td>
+            <td class="p-2">${entry.apresMidi || '-'}</td>
+            <td class="p-2">${entry.repasSoir ? 'OUI' : '-'}</td>
+            <td class="p-2 font-bold">${totalCent} c</td>
+            <td class="p-2 font-mono">${centToHHMM(totalCent)}</td>
+          </tr>
+        `;
+      }
+
+      reportEl.innerHTML = `
+        <div class="space-y-6">
+          <div class="flex justify-between items-center border-b pb-4">
+            <div>
+              <h2 class="text-xl font-bold text-slate-800">FICHE HEURES & REPAS - SUIVI PRO</h2>
+              <p class="text-sm text-slate-600">Période : <strong>${yearMonth}</strong></p>
+            </div>
+            <div class="text-right text-sm">
+              <p><strong>Chauffeur :</strong> ${driver.name}</p>
+              <p><strong>Matricule :</strong> ${driver.matricule || 'N/A'}</p>
+              <p><strong>Véhicule :</strong> ${driver.plate || 'N/A'}</p>
+            </div>
+          </div>
+
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-100 text-xs font-bold text-slate-700 border-b">
+                <th class="p-2">Date</th>
+                <th class="p-2">Matin</th>
+                <th class="p-2">Repas M.</th>
+                <th class="p-2">A.-Midi</th>
+                <th class="p-2">Repas S.</th>
+                <th class="p-2">Total Cent.</th>
+                <th class="p-2">HH:MM</th>
+              </tr>
+            </thead>
+            <tbody>${rowsHtml}</tbody>
+          </table>
+
+          <div class="bg-slate-900 text-white p-4 rounded-xl flex justify-between items-center">
+            <div>
+              <p class="text-xs text-slate-400">TOTAL CUMULÉ DU MOIS</p>
+              <p class="text-2xl font-bold">${totalMonthCent.toFixed(2)} centièmes</p>
+              <p class="text-sm text-amber-400 font-mono">Conversion : ${centToHHMM(totalMonthCent)}</p>
+            </div>
+            <div class="text-right space-y-1 text-sm">
+              <p>Repas Midi pris : <strong>${totalMonthMidi}</strong></p>
+              <p>Repas Soir pris : <strong>${totalMonthSoir}</strong></p>
+            </div>
+          </div>
+
+          <div class="pt-8 grid grid-cols-2 gap-8 text-xs text-slate-500">
+            <div>Signature Chauffeur :</div>
+            <div class="text-right">Signature Responsable :</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function exportToPDF() {
+      const element = document.getElementById('printable-area');
+      const opt = {
+        margin:       0.5,
+        filename:     `Fiche_Heures_${state.currentMonth}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(element).save();
+    }
+
+    function changeMonth(delta) {
+      const picker = document.getElementById('driver-month-picker');
+      const [y, m] = picker.value.split('-').map(Number);
+      const d = new Date(y, m - 1 + delta, 1);
+      const newYM = d.toISOString().slice(0, 7);
+      picker.value = newYM;
+      loadDriverMonthData();
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>
