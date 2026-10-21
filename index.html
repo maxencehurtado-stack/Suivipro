@@ -52,11 +52,10 @@
 <body class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen font-sans pb-16 transition-colors duration-200 flex flex-col justify-between">
 
   <div>
-    <!-- EN-TÊTE PRINCIPAL ET LOGO STYLÉ MINIMALISTE -->
+    <!-- EN-TÊTE PRINCIPAL ET LOGO -->
     <header class="bg-slate-900 text-white shadow-md border-b border-slate-800 sticky top-0 z-40">
       <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
         
-        <!-- LOGO BRANDING -->
         <div class="flex items-center space-x-3 cursor-pointer" onclick="location.reload()">
           <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-sky-400 p-0.5 shadow-lg shadow-blue-500/20 flex items-center justify-center">
             <div class="w-full h-full bg-slate-900 rounded-[14px] flex items-center justify-center">
@@ -72,7 +71,7 @@
           <div>
             <div class="flex items-center gap-2">
               <h1 class="text-base font-extrabold tracking-tight text-white">SUIVI<span class="text-blue-500">PRO</span></h1>
-              <span class="text-[9px] font-mono font-semibold bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded border border-blue-500/20">v2.4</span>
+              <span class="text-[9px] font-mono font-semibold bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded border border-blue-500/20">v2.5</span>
             </div>
             <p class="text-[11px] text-slate-400 font-medium leading-none mt-0.5">Heures, Repas & Absences</p>
           </div>
@@ -418,9 +417,9 @@
       managers: JSON.parse(localStorage.getItem('sp_managers')) || [
         { id: "m1", name: "Gestionnaire Principal", pin: "2157" }
       ],
-      drivers: [], // Vierge par défaut : reconstruit exclusivement depuis le Google Sheet
+      drivers: [],
       currentMonth: new Date().toISOString().slice(0, 7),
-      entries: {}  // Vierge par défaut : reconstruit exclusivement depuis le Google Sheet
+      entries: {}
     };
 
     function toggleDarkMode() {
@@ -493,17 +492,15 @@
       updateLiveDateTime();
       setInterval(updateLiveDateTime, 30000);
       
-      // Téléchargement intégral et forcé depuis le Cloud au démarrage
       fetchOnlineData(false);
     }
 
-    // SOURCE DE VÉRITÉ ABSOLUE : Google Sheet
+    // LECTURE ROBUSTE DEPUIS LE CLOUD
     function fetchOnlineData(showAlert = false) {
       fetch(CONFIG.SCRIPT_URL)
         .then(res => res.json())
         .then(data => {
-          // 1. Récupération stricte de la liste des chauffeurs depuis le Sheet
-          if (Array.isArray(data.drivers) && data.drivers.length > 0) {
+          if (data && Array.isArray(data.drivers)) {
             state.drivers = data.drivers.map(d => ({
               id: d.Id || d.id,
               name: d.Name || d.name,
@@ -515,9 +512,8 @@
             state.drivers = [];
           }
 
-          // 2. Récupération stricte des pointages depuis le Sheet
           state.entries = {};
-          if (Array.isArray(data.entries)) {
+          if (data && Array.isArray(data.entries)) {
             data.entries.forEach(row => {
               if (row.DriverId && row.Date) {
                 const key = `${row.DriverId}_${row.Date}`;
@@ -555,19 +551,52 @@
         });
     }
 
+    // ÉCRITURE ROBUSTE PAR POST (SANS LIMITE DE TAILLE D'URL)
     function syncDriversToCloud() {
-      const params = new URLSearchParams({
-        action: "saveDrivers",
-        data: JSON.stringify(state.drivers)
-      });
-
-      fetch(`${CONFIG.SCRIPT_URL}?${params.toString()}`, {
-        method: 'GET',
-        mode: 'no-cors'
+      fetch(CONFIG.SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action: "saveDrivers",
+          drivers: state.drivers
+        })
       }).then(() => {
-        console.log("Liste des chauffeurs sauvegardée dans le Cloud.");
+        console.log("Liste des chauffeurs envoyée au Cloud par POST.");
       }).catch(err => {
-        console.error("Erreur synchro chauffeurs :", err);
+        console.error("Erreur synchro chauffeurs POST :", err);
+      });
+    }
+
+    function syncToGoogleSheets(driverId, dateStr, entryData) {
+      const isAbsent = entryData.absence && entryData.absence !== 'WORK';
+      const matinVal = isAbsent ? 0 : (parseFloat(entryData.matin) || 0);
+      const amVal = isAbsent ? 0 : (parseFloat(entryData.apresMidi) || 0);
+      const totalCent = (matinVal + amVal).toFixed(2);
+      const driver = state.drivers.find(d => d.id === driverId);
+
+      fetch(CONFIG.SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action: "saveEntry",
+          driverId: driverId,
+          driverName: driver ? driver.name : '',
+          yearMonth: state.currentMonth,
+          date: dateStr,
+          matin: entryData.matin || '',
+          repasMidi: entryData.repasMidi ? 'OUI' : 'NON',
+          apresMidi: entryData.apresMidi || '',
+          repasSoir: entryData.repasSoir ? 'OUI' : 'NON',
+          absence: entryData.absence || 'WORK',
+          totalCent: totalCent,
+          totalHHMM: centToHHMM(totalCent)
+        })
+      }).then(() => {
+        console.log("Pointage envoyé au Cloud par POST.");
+      }).catch(err => {
+        console.error("Erreur pointage POST :", err);
       });
     }
 
@@ -993,39 +1022,6 @@
       }
     }
 
-    function syncToGoogleSheets(driverId, dateStr, entryData) {
-      const isAbsent = entryData.absence && entryData.absence !== 'WORK';
-      const matinVal = isAbsent ? 0 : (parseFloat(entryData.matin) || 0);
-      const amVal = isAbsent ? 0 : (parseFloat(entryData.apresMidi) || 0);
-      const totalCent = (matinVal + amVal).toFixed(2);
-
-      const driver = state.drivers.find(d => d.id === driverId);
-
-      const params = new URLSearchParams({
-        action: "saveEntry",
-        driverId: driverId,
-        driverName: driver ? driver.name : '',
-        yearMonth: state.currentMonth,
-        date: dateStr,
-        matin: entryData.matin || '',
-        repasMidi: entryData.repasMidi ? 'OUI' : 'NON',
-        apresMidi: entryData.apresMidi || '',
-        repasSoir: entryData.repasSoir ? 'OUI' : 'NON',
-        absence: entryData.absence || 'WORK',
-        totalCent: totalCent,
-        totalHHMM: centToHHMM(totalCent)
-      });
-
-      fetch(`${CONFIG.SCRIPT_URL}?${params.toString()}`, {
-        method: 'GET',
-        mode: 'no-cors'
-      }).then(() => {
-        console.log("Donnée envoyée au Cloud avec succès.");
-      }).catch(err => {
-        console.error("Erreur lors de l'envoi au Cloud :", err);
-      });
-    }
-
     function loadManagerData() {
       const driverId = document.getElementById('manager-select-driver').value;
       const yearMonth = document.getElementById('manager-month-picker').value;
@@ -1293,6 +1289,7 @@
     function closeManagerPinModal() { document.getElementById('manager-pin-modal').classList.add('hidden'); document.getElementById('new-manager-pin-input').value = ''; }
     function confirmManagerPinChange() {
       const newPin = document.getElementById('new-manager-pin-input').value.trim();
+      if [-newPin, newPin.length < 4].some(Boolean) ? true : false) // clean check
       if (!newPin || newPin.length < 4) return alert("Le code PIN doit contenir au moins 4 chiffres.");
       
       const mgr = state.managers.find(m => m.id === state.currentUser.id);
