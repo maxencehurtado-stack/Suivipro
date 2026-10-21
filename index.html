@@ -418,9 +418,7 @@
       managers: JSON.parse(localStorage.getItem('sp_managers')) || [
         { id: "m1", name: "Gestionnaire Principal", pin: "2157" }
       ],
-      drivers: JSON.parse(localStorage.getItem('sp_drivers')) || [
-        { id: "d1", name: "Chauffeur Exemple", matricule: "CH-01", plate: "AA-123-AA", pin: "0000" }
-      ],
+      drivers: JSON.parse(localStorage.getItem('sp_drivers')) || [], // Nettoyé : plus de chauffeur d'exemple par défaut
       currentMonth: new Date().toISOString().slice(0, 7),
       entries: JSON.parse(localStorage.getItem('sp_entries')) || {}
     };
@@ -1016,7 +1014,6 @@
 
         currentWeekHtml += buildDayCardHtml(dateStr, dayName, day, isToday, entry, true);
 
-        // Ligne tableau PDF jour
         pdfRowsHtml += `
           <tr style="border-bottom: 1px solid #e2e8f0; font-size: 9px;">
             <td style="padding: 4px; font-weight: bold;">${dateStr}</td>
@@ -1045,7 +1042,6 @@
             </div>
           `;
 
-          // Ligne Total Semaine PDF
           pdfRowsHtml += `
             <tr style="background-color: #f1f5f9; font-weight: bold; font-size: 9px; border-bottom: 2px solid #cbd5e1;">
               <td colspan="3" style="padding: 5px;">TOTAL SEMAINE ${weekIndex}</td>
@@ -1072,7 +1068,6 @@
       document.getElementById('manager-month-soir-count').innerText = monthSoirSum;
       document.getElementById('manager-month-soir-cost').innerText = `${totalSoirCost}€`;
 
-      // TEMPLATE PDF
       document.getElementById('printable-pdf-template').innerHTML = `
         <div class="pdf-page-1">
           <div style="background: #0f172a; color: white; padding: 12px 16px; border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
