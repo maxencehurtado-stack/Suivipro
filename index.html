@@ -3,20 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Suivi Pro - Version Ludique & Sécurisée</title>
+  <title>Suivi Pro - Gestion Professionnelle</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: {
         extend: {
-          keyframes: {
-            float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-6px)' } },
-            pulseGlow: { '0%, 100%': { opacity: 1 }, '50%': { opacity: 0.6 } }
-          },
-          animation: {
-            float: 'float 3s ease-in-out infinite',
-            glow: 'pulseGlow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+          colors: {
+            corporate: {
+              50: '#f8fafc',
+              100: '#f1f5f9',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              900: '#0f172a',
+            }
           }
         }
       }
@@ -32,243 +33,276 @@
     }
   </style>
 </head>
-<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-slate-100 min-h-screen font-sans pb-12 transition-colors duration-200">
+<body class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen font-sans pb-16 transition-colors duration-200 flex flex-col justify-between">
 
-  <!-- EN-TÊTE PRINCIPAL -->
-  <header class="bg-slate-950/80 backdrop-blur-md text-white shadow-lg sticky top-0 z-50 border-b border-slate-800">
-    <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-      <div class="flex items-center space-x-3">
-        <div class="bg-gradient-to-tr from-blue-600 to-indigo-500 text-white p-2.5 rounded-2xl font-black text-xl tracking-wider shadow-lg animate-float">SP</div>
-        <div>
-          <h1 class="text-xl font-black tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">Suivi Pro</h1>
-          <p class="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">Arcade Edition v20261021.03</p>
+  <div>
+    <!-- EN-TÊTE PROFESSIONNEL -->
+    <header class="bg-slate-900 text-white shadow border-b border-slate-800">
+      <div class="max-w-6xl mx-auto px-4 py-3.5 flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+          <div class="bg-blue-600 text-white p-2 rounded-xl font-bold text-base tracking-wider shadow-sm">SP</div>
+          <div>
+            <h1 class="text-lg font-bold tracking-tight">Suivi Pro</h1>
+            <p class="text-[10px] text-slate-400 font-medium">Portail de Gestion des Heures & Repas</p>
+          </div>
+        </div>
+        
+        <div class="flex items-center space-x-3">
+          <!-- Rappel Date & Heure dynamique -->
+          <div id="live-datetime" class="hidden md:block text-xs text-slate-400 font-mono bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700"></div>
+
+          <!-- Switch Theme -->
+          <button onclick="toggleDarkMode()" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition border border-slate-700" title="Changer de thème">
+            <span id="theme-icon">🌙</span>
+          </button>
+
+          <div id="user-status-bar" class="flex items-center space-x-2 text-sm">
+            <span id="current-user-badge" class="bg-slate-800 px-3 py-1.5 rounded-full text-slate-300 border border-slate-700 text-xs font-semibold">Non connecté</span>
+            <button id="logout-btn" onclick="logout()" class="hidden bg-rose-600 hover:bg-rose-700 px-3 py-1.5 rounded-full text-white font-semibold text-xs transition shadow-sm">Déconnexion</button>
+          </div>
         </div>
       </div>
-      
-      <div class="flex items-center space-x-3">
-        <button onclick="toggleDarkMode()" class="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs transition border border-slate-700 shadow" title="Thème">
-          <span id="theme-icon">🌙</span>
-        </button>
+    </header>
 
-        <div id="user-status-bar" class="flex items-center space-x-2 text-sm">
-          <span id="current-user-badge" class="bg-slate-900 px-3.5 py-1.5 rounded-full text-indigo-300 border border-indigo-500/30 text-xs font-bold shadow-inner">Non connecté</span>
-          <button id="logout-btn" onclick="logout()" class="hidden bg-rose-600 hover:bg-rose-700 px-3.5 py-1.5 rounded-full text-white font-bold text-xs transition shadow-lg shadow-rose-600/30">Déconnexion</button>
-        </div>
-      </div>
-    </div>
-  </header>
+    <main class="max-w-6xl mx-auto px-4 mt-8">
 
-  <main class="max-w-6xl mx-auto px-4 mt-8">
-
-    <!-- ÉCRAN DE CONNEXION (STYLE ARCADE / GAMIFIED) -->
-    <section id="login-view" class="max-w-md mx-auto bg-slate-900/90 backdrop-blur-xl p-8 rounded-3xl shadow-2xl border border-indigo-500/20 relative overflow-hidden">
-      <!-- Effet visuel lumineux en arrière-plan -->
-      <div class="absolute -top-24 -right-24 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
-      <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
-      <div class="text-center mb-8 relative">
-        <div class="inline-block p-3 bg-indigo-600/20 border border-indigo-500/40 rounded-2xl mb-3 animate-glow text-2xl">🎮</div>
-        <h2 class="text-3xl font-black tracking-tight text-white">Connexion Espace</h2>
-        <p class="text-xs text-slate-400 mt-1 font-medium">Préparez votre session de route</p>
-      </div>
-
-      <div class="space-y-5 relative">
-        <div>
-          <label class="block text-xs font-black uppercase tracking-wider text-indigo-400 mb-1.5">Choisissez votre Profil</label>
-          <select id="login-role" onchange="toggleLoginFields()" class="w-full p-4 border rounded-2xl bg-slate-950 border-slate-700 text-white focus:ring-2 focus:ring-indigo-500 font-bold text-sm shadow-inner transition cursor-pointer">
-            <option value="driver">🚚 Chauffeur / Livreur</option>
-            <option value="manager">📊 Espace Gestionnaire</option>
-            <option value="admin">🛡️ Admin Système (Master 2157)</option>
-          </select>
+      <!-- ÉCRAN DE CONNEXION : ONGLETS SÉPARÉS (CHAUFFEUR / GESTIONNAIRE) -->
+      <section id="login-view" class="max-w-md mx-auto bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800">
+        
+        <!-- Onglets de sélection du rôle -->
+        <div class="flex rounded-xl bg-slate-100 dark:bg-slate-950 p-1 mb-6 border border-slate-200 dark:border-slate-800">
+          <button id="tab-btn-driver" onclick="switchLoginTab('driver')" class="w-1/2 py-2.5 text-xs font-bold rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm transition">Espace Chauffeur</button>
+          <button id="tab-btn-manager" onclick="switchLoginTab('manager')" class="w-1/2 py-2.5 text-xs font-bold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 transition">Espace Gestionnaire</button>
         </div>
 
-        <div id="driver-select-container">
-          <label class="block text-xs font-black uppercase tracking-wider text-indigo-400 mb-1.5">Sélectionner votre Nom</label>
-          <select id="login-driver-id" class="w-full p-4 border rounded-2xl bg-slate-950 border-slate-700 text-white focus:ring-2 focus:ring-indigo-500 font-bold text-sm shadow-inner transition cursor-pointer">
-            <option value="">-- Choisir un chauffeur --</option>
-          </select>
+        <div class="text-center mb-6">
+          <h2 id="login-title" class="text-xl font-bold text-slate-900 dark:text-white">Connexion Chauffeur</h2>
+          <p id="login-subtitle" class="text-xs text-slate-500 dark:text-slate-400 mt-1">Sélectionnez votre profil et saisissez votre code PIN</p>
         </div>
 
-        <div>
-          <label id="pin-label" class="block text-xs font-black uppercase tracking-wider text-indigo-400 mb-1.5">Code PIN Chauffeur</label>
-          <input type="password" id="login-pin" maxlength="6" inputmode="numeric" placeholder="••••" class="w-full p-4 border rounded-2xl bg-slate-950 border-slate-700 text-white text-center tracking-[0.5em] text-2xl font-mono focus:ring-2 focus:ring-indigo-500 shadow-inner">
-        </div>
-
-        <div id="login-error" class="hidden text-rose-400 text-xs font-bold text-center bg-rose-950/40 p-3.5 rounded-xl border border-rose-800/60 animate-shake"></div>
-
-        <button onclick="handleLogin()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 active:scale-[0.98] text-white font-black py-4 rounded-2xl shadow-xl shadow-indigo-600/30 transition duration-150 tracking-wide uppercase text-sm">Entrer dans la session 🚀</button>
-      </div>
-    </section>
-
-    <!-- ACCÈS ACCORDÉ -->
-    <div id="app-content" class="hidden space-y-6">
-
-      <!-- ESPACE CHAUFFEUR -->
-      <section id="driver-space" class="space-y-6">
-        <div class="bg-slate-900/90 backdrop-blur-md p-5 rounded-2xl shadow-sm border border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
-          <div class="flex items-center space-x-2">
-            <button onclick="changeMonth(-1)" class="p-3 bg-slate-800 rounded-xl hover:bg-slate-700 font-bold transition">◄</button>
-            <input type="month" id="driver-month-picker" onchange="loadDriverMonthData()" class="p-3 border border-slate-700 rounded-xl font-bold bg-slate-950 text-white text-sm">
-            <button onclick="changeMonth(1)" class="p-3 bg-slate-800 rounded-xl hover:bg-slate-700 font-bold transition">►</button>
+        <!-- Formulaire Chauffeur -->
+        <div id="login-form-driver" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Sélectionner votre Nom</label>
+            <select id="login-driver-id" class="w-full p-3.5 border rounded-xl bg-slate-50 dark:bg-slate-950 dark:border-slate-800 dark:text-white font-medium text-sm focus:ring-2 focus:ring-blue-500">
+              <option value="">-- Choisir un chauffeur --</option>
+            </select>
           </div>
 
-          <div class="flex items-center space-x-3">
-            <button onclick="openChangePinModal()" class="text-xs bg-slate-800 hover:bg-slate-700 px-4 py-2.5 rounded-xl font-bold border border-slate-700 transition flex items-center gap-2">🔑 Modifier mon PIN</button>
-            <span id="sync-status" class="text-xs px-3.5 py-2 rounded-full bg-emerald-950 text-emerald-300 font-bold flex items-center gap-2 border border-emerald-800/50">
-              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> Cloud Synced
-            </span>
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Code PIN Chauffeur</label>
+            <div class="relative">
+              <input type="password" id="login-pin-driver" maxlength="6" inputmode="numeric" placeholder="••••" class="w-full p-3.5 pr-12 border rounded-xl bg-slate-50 dark:bg-slate-950 dark:border-slate-800 dark:text-white text-center tracking-widest text-xl font-mono focus:ring-2 focus:ring-blue-500">
+              <button type="button" onclick="togglePasswordVisibility('login-pin-driver', 'eye-icon-driver')" class="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600 text-sm">
+                <span id="eye-icon-driver">👁️‍🗨️</span>
+              </button>
+            </div>
           </div>
         </div>
 
-        <div id="month-grid" class="space-y-4"></div>
+        <!-- Formulaire Gestionnaire -->
+        <div id="login-form-manager" class="space-y-4 hidden">
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Code PIN Gestionnaire</label>
+            <div class="relative">
+              <input type="password" id="login-pin-manager" maxlength="6" inputmode="numeric" placeholder="••••" class="w-full p-3.5 pr-12 border rounded-xl bg-slate-50 dark:bg-slate-950 dark:border-slate-800 dark:text-white text-center tracking-widest text-xl font-mono focus:ring-2 focus:ring-blue-500">
+              <button type="button" onclick="togglePasswordVisibility('login-pin-manager', 'eye-icon-manager')" class="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600 text-sm">
+                <span id="eye-icon-manager">👁️‍🗨️</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="login-error" class="hidden mt-4 text-rose-600 dark:text-rose-400 text-xs font-semibold text-center bg-rose-50 dark:bg-rose-950/50 p-3 rounded-xl border border-rose-200 dark:border-rose-900"></div>
+
+        <button onclick="handleLogin()" class="w-full mt-6 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-bold py-3.5 rounded-xl shadow-md transition duration-150 text-sm">Se Connecter</button>
       </section>
 
-      <!-- ESPACE GESTIONNAIRE -->
-      <section id="manager-space" class="hidden space-y-6">
-        <div class="bg-slate-900/90 backdrop-blur-md p-6 rounded-3xl shadow-xl border border-slate-800 space-y-6">
-          <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-800 pb-4 gap-4">
-            <div>
-              <h2 class="text-2xl font-black text-white">Espace Gestionnaire</h2>
-              <p class="text-xs text-slate-400">Suivi des équipes et feuilles de paie</p>
+      <!-- ACCÈS ACCORDÉ -->
+      <div id="app-content" class="hidden space-y-6">
+
+        <!-- ESPACE CHAUFFEUR -->
+        <section id="driver-space" class="space-y-6">
+          <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-2">
+              <button onclick="changeMonth(-1)" class="p-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 font-bold transition">◄</button>
+              <input type="month" id="driver-month-picker" onchange="loadDriverMonthData()" class="p-2.5 border border-slate-200 dark:border-slate-800 rounded-xl font-bold bg-slate-50 dark:bg-slate-950 dark:text-white text-sm">
+              <button onclick="changeMonth(1)" class="p-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 font-bold transition">►</button>
             </div>
-            <div class="flex flex-wrap gap-2">
-              <button id="btn-tab-drivers" onclick="showTab('tab-drivers')" class="px-4 py-2.5 bg-indigo-600 text-white font-bold text-xs rounded-xl shadow transition">Gérer les Chauffeurs</button>
-              <button id="btn-tab-summary" onclick="showTab('tab-summary')" class="px-4 py-2.5 bg-slate-800 text-slate-300 font-bold text-xs rounded-xl hover:bg-slate-700 transition">Consulter & Exporter</button>
-              <button onclick="openManagerPinModal()" class="px-4 py-2.5 bg-slate-800 text-indigo-400 font-bold text-xs rounded-xl hover:bg-slate-700 transition">🔑 Mon Mot de Passe</button>
+
+            <div class="flex items-center space-x-3">
+              <button onclick="openChangePinModal()" class="text-xs bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 px-3.5 py-2.5 rounded-xl font-semibold border border-slate-200 dark:border-slate-800 transition">🔑 Modifier mon PIN</button>
+              <span id="sync-status" class="text-xs px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 font-semibold flex items-center gap-1.5 border border-emerald-200 dark:border-emerald-900">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Google Cloud Connecté
+              </span>
             </div>
           </div>
 
-          <!-- ONGLET CHAUFFEURS -->
-          <div id="tab-drivers" class="space-y-6">
-            <div class="bg-slate-950/50 p-5 rounded-2xl border border-slate-800 space-y-4">
-              <h3 class="font-bold text-white text-base">Ajouter un Chauffeur</h3>
-              <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-                <input type="text" id="new-driver-name" placeholder="Nom Prénom *" class="p-3 border rounded-xl text-sm bg-slate-900 border-slate-700 text-white">
-                <input type="text" id="new-driver-matricule" placeholder="Matricule" class="p-3 border rounded-xl text-sm bg-slate-900 border-slate-700 text-white">
-                <input type="text" id="new-driver-plate" placeholder="Immatriculation" class="p-3 border rounded-xl text-sm bg-slate-900 border-slate-700 text-white">
-                <input type="password" id="new-driver-pin" maxlength="6" placeholder="Code PIN (ex: 1234)" class="p-3 border rounded-xl text-sm font-mono bg-slate-900 border-slate-700 text-white">
+          <div id="month-grid" class="space-y-4"></div>
+        </section>
+
+        <!-- ESPACE GESTIONNAIRE -->
+        <section id="manager-space" class="hidden space-y-6">
+          <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-200 dark:border-slate-800 pb-4 gap-4">
+              <div>
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white">Espace Gestionnaire</h2>
+                <p class="text-xs text-slate-500">Supervision de l'équipe et édition des feuilles de paie</p>
               </div>
-              <button onclick="saveDriver()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-bold text-xs shadow-lg shadow-emerald-600/20 transition">Enregistrer le Chauffeur</button>
+              <div class="flex flex-wrap gap-2">
+                <button id="btn-tab-drivers" onclick="showTab('tab-drivers')" class="px-4 py-2.5 bg-blue-600 text-white font-semibold text-xs rounded-xl shadow-sm transition">Gestion des Chauffeurs</button>
+                <button id="btn-tab-summary" onclick="showTab('tab-summary')" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs rounded-xl hover:bg-slate-200 transition">Rapports & Exports</button>
+                <button onclick="openManagerPinModal()" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs rounded-xl hover:bg-slate-200 transition">🔑 Sécurité Mot de Passe</button>
+              </div>
             </div>
 
-            <div class="flex justify-between items-center gap-4">
-              <input type="text" id="search-driver-input" onkeyup="renderDriversList()" placeholder="🔍 Rechercher un chauffeur..." class="p-3 border rounded-xl text-sm w-full md:w-64 bg-slate-950 border-slate-700 text-white">
-              <span id="driver-count-badge" class="text-xs text-slate-400 font-bold">0 chauffeur(s)</span>
+            <!-- ONGLET CHAUFFEURS -->
+            <div id="tab-drivers" class="space-y-6">
+              <div class="bg-slate-50 dark:bg-slate-950 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-4">
+                <h3 class="font-bold text-slate-900 dark:text-white text-sm">Ajouter un Chauffeur</h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                  <input type="text" id="new-driver-name" placeholder="Nom Prénom *" class="p-3 border border-slate-200 dark:border-slate-800 rounded-xl text-sm bg-white dark:bg-slate-900">
+                  <input type="text" id="new-driver-matricule" placeholder="Matricule" class="p-3 border border-slate-200 dark:border-slate-800 rounded-xl text-sm bg-white dark:bg-slate-900">
+                  <input type="text" id="new-driver-plate" placeholder="Immatriculation" class="p-3 border border-slate-200 dark:border-slate-800 rounded-xl text-sm bg-white dark:bg-slate-900">
+                  <input type="password" id="new-driver-pin" maxlength="6" placeholder="Code PIN (ex: 1234)" class="p-3 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-mono bg-white dark:bg-slate-900">
+                </div>
+                <button onclick="saveDriver()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-semibold text-xs shadow-sm transition">Ajouter le Chauffeur</button>
+              </div>
+
+              <div class="flex justify-between items-center gap-4">
+                <input type="text" id="search-driver-input" onkeyup="renderDriversList()" placeholder="🔍 Filtrer par nom ou matricule..." class="p-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-sm w-full md:w-72 bg-slate-50 dark:bg-slate-950">
+                <span id="driver-count-badge" class="text-xs text-slate-500 font-semibold">0 chauffeur(s)</span>
+              </div>
+
+              <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+                <table class="w-full text-left border-collapse bg-white dark:bg-slate-900">
+                  <thead>
+                    <tr class="bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 text-xs uppercase font-bold border-b border-slate-200 dark:border-slate-800">
+                      <th class="p-3.5">Nom</th>
+                      <th class="p-3.5">Matricule</th>
+                      <th class="p-3.5">Immatriculation</th>
+                      <th class="p-3.5">Code PIN Sécurisé</th>
+                      <th class="p-3.5 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="drivers-list-table" class="divide-y divide-slate-100 dark:divide-slate-800 text-sm"></tbody>
+                </table>
+              </div>
             </div>
 
-            <div class="overflow-x-auto rounded-2xl border border-slate-800">
-              <table class="w-full text-left border-collapse bg-slate-900">
+            <!-- ONGLET RAPPORT -->
+            <div id="tab-summary" class="hidden space-y-6">
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Chauffeur</label>
+                  <select id="manager-select-driver" onchange="loadManagerData()" class="w-full p-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 text-sm font-semibold"></select>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Période</label>
+                  <input type="month" id="manager-month-picker" onchange="loadManagerData()" class="w-full p-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 text-sm font-semibold">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Taux Repas (€)</label>
+                  <input type="number" id="meal-rate-input" value="15.00" step="0.5" onchange="loadManagerData()" class="w-full p-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 text-sm font-semibold">
+                </div>
+                <div class="flex items-end">
+                  <button onclick="exportToPDF()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold p-2.5 rounded-xl shadow-sm text-xs transition">📄 Télécharger Rapport PDF</button>
+                </div>
+              </div>
+
+              <div id="printable-area" class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div id="manager-report-content"></div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ESPACE ADMIN SYSTÈME (MASTER 2157) -->
+        <section id="admin-space" class="hidden space-y-6">
+          <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 space-y-6">
+            <div class="border-b border-slate-200 dark:border-slate-800 pb-4 flex justify-between items-center">
+              <div>
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white">Administration Système Master</h2>
+                <p class="text-xs text-slate-500">Gestion des accès d'urgence et réinitialisation des mots de passe</p>
+              </div>
+              <button onclick="logout()" class="text-xs text-rose-600 font-bold hover:underline">Quitter l'Admin</button>
+            </div>
+
+            <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center">
+              <div>
+                <h4 class="font-bold text-sm text-slate-900 dark:text-white">Code PIN du Gestionnaire</h4>
+                <p class="text-xs text-slate-500">Réinitialisation d'urgence en cas d'oubli.</p>
+              </div>
+              <div class="flex items-center space-x-2">
+                <input type="text" id="admin-reset-manager-pin" placeholder="Nouveau PIN" maxlength="6" class="p-2 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-lg text-center font-mono text-xs w-28">
+                <button onclick="adminResetManagerPin()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg font-semibold text-xs transition">Réinitialiser</button>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+              <table class="w-full text-left border-collapse bg-white dark:bg-slate-900">
                 <thead>
-                  <tr class="bg-slate-950 text-white text-xs font-black uppercase tracking-wider">
-                    <th class="p-4">Nom</th>
-                    <th class="p-4">Matricule</th>
-                    <th class="p-4">Immatriculation</th>
-                    <th class="p-4">Code PIN</th>
-                    <th class="p-4 text-right">Actions</th>
+                  <tr class="bg-slate-50 dark:bg-slate-950 text-slate-500 text-xs font-bold uppercase border-b border-slate-200 dark:border-slate-800">
+                    <th class="p-3.5">Chauffeur</th>
+                    <th class="p-3.5">Matricule</th>
+                    <th class="p-3.5">Nouveau PIN Master</th>
+                    <th class="p-3.5 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody id="drivers-list-table" class="divide-y divide-slate-800 text-sm"></tbody>
+                <tbody id="admin-drivers-pin-table" class="divide-y divide-slate-100 dark:divide-slate-800 text-sm"></tbody>
               </table>
             </div>
           </div>
+        </section>
 
-          <!-- ONGLET RÉCAPITULATIF / EXPORT -->
-          <div id="tab-summary" class="hidden space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-950/50 p-4 rounded-2xl border border-slate-800">
-              <div>
-                <label class="block text-xs font-bold text-slate-400 mb-1">Chauffeur</label>
-                <select id="manager-select-driver" onchange="loadManagerData()" class="w-full p-3 border rounded-xl bg-slate-900 border-slate-700 text-white text-sm font-semibold"></select>
-              </div>
-              <div>
-                <label class="block text-xs font-bold text-slate-400 mb-1">Période</label>
-                <input type="month" id="manager-month-picker" onchange="loadManagerData()" class="w-full p-3 border rounded-xl bg-slate-900 border-slate-700 text-white text-sm font-semibold">
-              </div>
-              <div>
-                <label class="block text-xs font-bold text-slate-400 mb-1">Taux Repas (€)</label>
-                <input type="number" id="meal-rate-input" value="15.00" step="0.5" onchange="loadManagerData()" class="w-full p-3 border rounded-xl bg-slate-900 border-slate-700 text-white text-sm font-semibold">
-              </div>
-              <div class="flex items-end">
-                <button onclick="exportToPDF()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold p-3 rounded-xl shadow-lg shadow-rose-600/20 text-xs transition">📄 Exporter PDF Comptabilité</button>
-              </div>
-            </div>
-
-            <div id="printable-area" class="bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-sm text-slate-100">
-              <div id="manager-report-content"></div>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      <!-- ESPACE ADMIN SYSTÈME (MASTER 2157) -->
-      <section id="admin-space" class="hidden space-y-6">
-        <div class="bg-slate-900/90 backdrop-blur-md p-6 rounded-3xl shadow-xl border border-amber-500/30 space-y-6">
-          <div class="border-b border-slate-800 pb-4 flex justify-between items-center">
-            <div>
-              <h2 class="text-2xl font-black text-amber-400">🛡️ Administration Système Master</h2>
-              <p class="text-xs text-slate-400">Accès souverain : consultation et réinitialisation de tous les codes PIN (Chauffeurs & Gestionnaire)</p>
-            </div>
-            <div class="bg-amber-500/10 border border-amber-500/30 text-amber-300 px-3 py-1.5 rounded-xl text-xs font-mono font-bold">MASTER PIN ACTIVE</div>
-          </div>
-
-          <!-- Section Gestionnaire PIN -->
-          <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 flex justify-between items-center">
-            <div>
-              <h4 class="font-bold text-white">Code PIN du Gestionnaire</h4>
-              <p class="text-xs text-slate-400">Le gestionnaire a perdu son mot de passe ? Réinitialisez-le ici.</p>
-            </div>
-            <div class="flex items-center space-x-3">
-              <input type="text" id="admin-reset-manager-pin" placeholder="Nouveau PIN" maxlength="6" class="p-2.5 border border-slate-700 bg-slate-900 text-white rounded-xl text-center font-mono text-sm w-32">
-              <button onclick="adminResetManagerPin()" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs transition">Changer PIN Manager</button>
-            </div>
-          </div>
-
-          <!-- Tableau de tous les codes PIN chauffeurs -->
-          <div class="overflow-x-auto rounded-2xl border border-slate-800">
-            <table class="w-full text-left border-collapse bg-slate-950">
-              <thead>
-                <tr class="bg-slate-900 text-white text-xs font-black uppercase tracking-wider">
-                  <th class="p-4">Chauffeur</th>
-                  <th class="p-4">Matricule</th>
-                  <th class="p-4">Code PIN Actuel</th>
-                  <th class="p-4 text-right">Action Master (Réinitialiser PIN)</th>
-                </tr>
-              </thead>
-              <tbody id="admin-drivers-pin-table" class="divide-y divide-slate-800 text-sm"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-    </div>
-  </main>
-
-  <!-- MODAL : CHANGEMENT DE PIN CHAUFFEUR -->
-  <div id="pin-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4">
-      <h3 class="text-lg font-black text-white">Modifier mon Code PIN</h3>
-      <div>
-        <label class="block text-xs font-bold text-slate-400 mb-1">Nouveau Code PIN (4 à 6 chiffres)</label>
-        <input type="password" id="new-pin-input" maxlength="6" inputmode="numeric" placeholder="••••" class="w-full p-3.5 border border-slate-700 bg-slate-950 text-white rounded-2xl text-center text-xl font-mono">
       </div>
-      <div class="flex space-x-3 pt-2">
-        <button onclick="closeChangePinModal()" class="w-1/2 bg-slate-800 hover:bg-slate-700 text-slate-300 py-3 rounded-xl font-bold text-xs">Annuler</button>
-        <button onclick="confirmChangePin()" class="w-1/2 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold text-xs shadow-lg">Valider</button>
+    </main>
+  </div>
+
+  <!-- PIED DE PAGE DISCRET AVEC ACCÈS ADMIN CACHÉ -->
+  <footer class="max-w-6xl mx-auto px-4 w-full mt-12 text-center text-xs text-slate-400 flex justify-between items-center border-t border-slate-200 dark:border-slate-800 pt-6">
+    <p>Suivi Pro — Solution de suivi d'activité professionnelle</p>
+    <!-- Bouton discret dans le coin en bas -->
+    <button onclick="openAdminPrompt()" class="opacity-20 hover:opacity-100 transition text-[10px] font-mono text-slate-500 dark:text-slate-400 px-2 py-1 rounded bg-slate-200 dark:bg-slate-800">⚙️ Admin</button>
+  </footer>
+
+  <!-- MODAL : CHANGEMENT PIN CHAUFFEUR -->
+  <div id="pin-modal" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 max-w-sm w-full shadow-xl space-y-4">
+      <h3 class="text-base font-bold text-slate-900 dark:text-white">Modifier mon Code PIN</h3>
+      <div>
+        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Nouveau Code PIN (masqué par sécurité)</label>
+        <div class="relative">
+          <input type="password" id="new-pin-input" maxlength="6" inputmode="numeric" placeholder="••••" class="w-full p-3 pr-10 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-white rounded-xl text-center text-lg font-mono">
+          <button type="button" onclick="togglePasswordVisibility('new-pin-input', 'eye-modal-driver')" class="absolute right-3.5 top-3 text-slate-400 text-xs">
+            <span id="eye-modal-driver">👁️‍🗨️</span>
+          </button>
+        </div>
+      </div>
+      <div class="flex space-x-2 pt-2">
+        <button onclick="closeChangePinModal()" class="w-1/2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 py-2.5 rounded-xl font-semibold text-xs">Annuler</button>
+        <button onclick="confirmChangePin()" class="w-1/2 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl font-semibold text-xs shadow-sm">Confirmer</button>
       </div>
     </div>
   </div>
 
   <!-- MODAL : CHANGEMENT PIN GESTIONNAIRE -->
-  <div id="manager-pin-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4">
-      <h3 class="text-lg font-black text-white">Modifier mon Mot de Passe (Manager)</h3>
+  <div id="manager-pin-modal" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 max-w-sm w-full shadow-xl space-y-4">
+      <h3 class="text-base font-bold text-slate-900 dark:text-white">Modifier le code PIN Gestionnaire</h3>
       <div>
-        <label class="block text-xs font-bold text-slate-400 mb-1">Nouveau Code PIN Gestionnaire</label>
-        <input type="password" id="new-manager-pin-input" maxlength="6" inputmode="numeric" placeholder="••••" class="w-full p-3.5 border border-slate-700 bg-slate-950 text-white rounded-2xl text-center text-xl font-mono">
+        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Nouveau Code PIN</label>
+        <div class="relative">
+          <input type="password" id="new-manager-pin-input" maxlength="6" inputmode="numeric" placeholder="••••" class="w-full p-3 pr-10 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-white rounded-xl text-center text-lg font-mono">
+          <button type="button" onclick="togglePasswordVisibility('new-manager-pin-input', 'eye-modal-manager')" class="absolute right-3.5 top-3 text-slate-400 text-xs">
+            <span id="eye-modal-manager">👁️‍🗨️</span>
+          </button>
+        </div>
       </div>
-      <div class="flex space-x-3 pt-2">
-        <button onclick="closeManagerPinModal()" class="w-1/2 bg-slate-800 hover:bg-slate-700 text-slate-300 py-3 rounded-xl font-bold text-xs">Annuler</button>
-        <button onclick="confirmManagerPinChange()" class="w-1/2 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold text-xs shadow-lg">Enregistrer</button>
+      <div class="flex space-x-2 pt-2">
+        <button onclick="closeManagerPinModal()" class="w-1/2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 py-2.5 rounded-xl font-semibold text-xs">Annuler</button>
+        <button onclick="confirmManagerPinChange()" class="w-1/2 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl font-semibold text-xs shadow-sm">Enregistrer</button>
       </div>
     </div>
   </div>
@@ -301,6 +335,51 @@
       }
     }
 
+    function updateLiveDateTime() {
+      const now = new Date();
+      const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+      const el = document.getElementById('live-datetime');
+      if(el) el.innerText = now.toLocaleDateString('fr-FR', options);
+    }
+
+    function togglePasswordVisibility(inputId, iconId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      if (input.type === "password") {
+        input.type = "text";
+        if(icon) icon.innerText = "👁️";
+      } else {
+        input.type = "password";
+        if(icon) icon.innerText = "👁️‍🗨️";
+      }
+    }
+
+    function switchLoginTab(role) {
+      const btnDriver = document.getElementById('tab-btn-driver');
+      const btnManager = document.getElementById('tab-btn-manager');
+      const formDriver = document.getElementById('login-form-driver');
+      const formManager = document.getElementById('login-form-manager');
+      const title = document.getElementById('login-title');
+      const subtitle = document.getElementById('login-subtitle');
+
+      if (role === 'driver') {
+        btnDriver.className = "w-1/2 py-2.5 text-xs font-bold rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm transition";
+        btnManager.className = "w-1/2 py-2.5 text-xs font-bold rounded-lg text-slate-500 hover:text-slate-900 transition";
+        formDriver.classList.remove('hidden');
+        formManager.classList.add('hidden');
+        title.innerText = "Connexion Chauffeur";
+        subtitle.innerText = "Sélectionnez votre profil et saisissez votre code PIN";
+      } else {
+        btnManager.className = "w-1/2 py-2.5 text-xs font-bold rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm transition";
+        btnDriver.className = "w-1/2 py-2.5 text-xs font-bold rounded-lg text-slate-500 hover:text-slate-900 transition";
+        formManager.classList.remove('hidden');
+        formDriver.classList.add('hidden');
+        title.innerText = "Connexion Gestionnaire";
+        subtitle.innerText = "Saisissez votre code d'accès administrateur de planning";
+      }
+      document.getElementById('login-error').classList.add('hidden');
+    }
+
     function saveState() {
       localStorage.setItem('sp_drivers', JSON.stringify(state.drivers));
       localStorage.setItem('sp_entries', JSON.stringify(state.entries));
@@ -312,7 +391,8 @@
       document.getElementById('driver-month-picker').value = state.currentMonth;
       document.getElementById('manager-month-picker').value = state.currentMonth;
       populateDriverSelects();
-      toggleLoginFields();
+      updateLiveDateTime();
+      setInterval(updateLiveDateTime, 30000);
       fetchOnlineData();
     }
 
@@ -340,7 +420,7 @@
             }
           }
         })
-        .catch(err => console.log("Chargement initial en ligne :", err));
+        .catch(err => console.log("Cloud synchro:", err));
     }
 
     function populateDriverSelects() {
@@ -358,37 +438,13 @@
       renderDriversList();
     }
 
-    function toggleLoginFields() {
-      const role = document.getElementById('login-role').value;
-      const driverContainer = document.getElementById('driver-select-container');
-      const pinLabel = document.getElementById('pin-label');
-      
-      if (role === 'manager') {
-        driverContainer.classList.add('hidden');
-        pinLabel.innerText = "Code PIN Gestionnaire";
-      } else if (role === 'admin') {
-        driverContainer.classList.add('hidden');
-        pinLabel.innerText = "Code PIN Admin Système (2157)";
-      } else {
-        driverContainer.classList.remove('hidden');
-        pinLabel.innerText = "Code PIN Chauffeur";
-      }
-    }
-
     function handleLogin() {
-      const role = document.getElementById('login-role').value;
-      const pin = document.getElementById('login-pin').value;
+      const isManagerTab = !document.getElementById('login-form-manager').classList.contains('hidden');
       const errEl = document.getElementById('login-error');
       errEl.classList.add('hidden');
 
-      if (role === 'admin') {
-        if (pin === CONFIG.MASTER_ADMIN_PIN) {
-          state.currentUser = { role: 'admin', name: 'Administrateur Système' };
-          showAppScreen();
-        } else {
-          showError("Code PIN Administrateur incorrect (Master: 2157).");
-        }
-      } else if (role === 'manager') {
+      if (isManagerTab) {
+        const pin = document.getElementById('login-pin-manager').value;
         if (pin === state.managerPin) {
           state.currentUser = { role: 'manager', name: 'Gestionnaire' };
           showAppScreen();
@@ -397,6 +453,7 @@
         }
       } else {
         const driverId = document.getElementById('login-driver-id').value;
+        const pin = document.getElementById('login-pin-driver').value;
         const driver = state.drivers.find(d => d.id === driverId);
         
         if (!driver) {
@@ -413,6 +470,16 @@
       }
     }
 
+    function openAdminPrompt() {
+      const code = prompt("Code d'accès Administrateur Système :");
+      if (code === CONFIG.MASTER_ADMIN_PIN) {
+        state.currentUser = { role: 'admin', name: 'Admin Système' };
+        showAppScreen();
+      } else if (code !== null) {
+        alert("Code Master incorrect.");
+      }
+    }
+
     function showError(msg) {
       const errEl = document.getElementById('login-error');
       errEl.innerText = msg;
@@ -425,7 +492,7 @@
       document.getElementById('logout-btn').classList.remove('hidden');
       
       const badge = document.getElementById('current-user-badge');
-      badge.innerText = state.currentUser.name + (state.currentUser.role === 'manager' ? ' (Admin)' : state.currentUser.role === 'admin' ? ' (SuperMaster)' : '');
+      badge.innerText = state.currentUser.name;
 
       document.getElementById('driver-space').classList.add('hidden');
       document.getElementById('manager-space').classList.add('hidden');
@@ -448,7 +515,8 @@
       document.getElementById('login-view').classList.remove('hidden');
       document.getElementById('app-content').classList.add('hidden');
       document.getElementById('logout-btn').classList.add('hidden');
-      document.getElementById('login-pin').value = '';
+      document.getElementById('login-pin-driver').value = '';
+      document.getElementById('login-pin-manager').value = '';
     }
 
     function saveDriver() {
@@ -477,8 +545,7 @@
     function deleteDriver(driverId) {
       const driver = state.drivers.find(d => d.id === driverId);
       if (!driver) return;
-
-      if (confirm(`Voulez-vous vraiment supprimer définitivement le chauffeur "${driver.name}" ?`)) {
+      if (confirm(`Confirmer la suppression de ${driver.name} ?`)) {
         state.drivers = state.drivers.filter(d => d.id !== driverId);
         saveState();
       }
@@ -491,18 +558,17 @@
       tbody.innerHTML = '';
 
       const filtered = state.drivers.filter(d => d.name.toLowerCase().includes(searchVal) || (d.matricule && d.matricule.toLowerCase().includes(searchVal)));
-      const countBadge = document.getElementById('driver-count-badge');
-      if (countBadge) countBadge.innerText = `${filtered.length} chauffeur(s)`;
+      document.getElementById('driver-count-badge').innerText = `${filtered.length} chauffeur(s)`;
 
       filtered.forEach(d => {
         tbody.innerHTML += `
-          <tr class="hover:bg-slate-800/50 font-medium">
-            <td class="p-4 font-bold text-white">${d.name}</td>
-            <td class="p-4 text-slate-400">${d.matricule || '-'}</td>
-            <td class="p-4 text-slate-400">${d.plate || '-'}</td>
-            <td class="p-4 font-mono text-indigo-300">${d.pin || '0000'}</td>
-            <td class="p-4 text-right">
-              <button onclick="deleteDriver('${d.id}')" class="bg-rose-950/80 hover:bg-rose-900 text-rose-300 px-3 py-1.5 rounded-lg font-bold text-xs transition border border-rose-800">Supprimer</button>
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+            <td class="p-3.5 font-bold text-slate-900 dark:text-white">${d.name}</td>
+            <td class="p-3.5 text-slate-500">${d.matricule || '-'}</td>
+            <td class="p-3.5 text-slate-500">${d.plate || '-'}</td>
+            <td class="p-3.5 font-mono text-slate-400">••••••</td>
+            <td class="p-3.5 text-right">
+              <button onclick="deleteDriver('${d.id}')" class="bg-rose-50 text-rose-700 hover:bg-rose-100 dark:bg-rose-950/50 dark:text-rose-400 px-3 py-1.5 rounded-lg font-semibold text-xs transition">Supprimer</button>
             </td>
           </tr>
         `;
@@ -516,13 +582,14 @@
 
       state.drivers.forEach(d => {
         tbody.innerHTML += `
-          <tr class="hover:bg-slate-900">
-            <td class="p-4 font-bold text-white">${d.name}</td>
-            <td class="p-4 text-slate-400">${d.matricule || '-'}</td>
-            <td class="p-4 font-mono text-amber-400 font-bold">${d.pin || '0000'}</td>
-            <td class="p-4 text-right space-x-2">
-              <input type="text" id="admin_pin_${d.id}" placeholder="Nouveau PIN" maxlength="6" class="p-2 border border-slate-700 bg-slate-900 text-white rounded-lg text-center font-mono text-xs w-28">
-              <button onclick="adminResetDriverPin('${d.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg font-bold text-xs transition">Réinitialiser</button>
+          <tr>
+            <td class="p-3.5 font-bold text-slate-900 dark:text-white">${d.name}</td>
+            <td class="p-3.5 text-slate-500">${d.matricule || '-'}</td>
+            <td class="p-3.5">
+              <input type="text" id="admin_pin_${d.id}" placeholder="Nouveau PIN" maxlength="6" class="p-2 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 rounded-lg text-center font-mono text-xs w-28">
+            </td>
+            <td class="p-3.5 text-right">
+              <button onclick="adminResetDriverPin('${d.id}')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg font-semibold text-xs transition">Mettre à jour</button>
             </td>
           </tr>
         `;
@@ -532,26 +599,24 @@
     function adminResetDriverPin(driverId) {
       const input = document.getElementById(`admin_pin_${driverId}`);
       const newPin = input.value.trim();
-      if (!newPin || newPin.length < 4) return alert("Le PIN doit faire au moins 4 chiffres.");
-
+      if (!newPin || newPin.length < 4) return alert("Le PIN doit contenir au moins 4 chiffres.");
       const driver = state.drivers.find(d => d.id === driverId);
       if (driver) {
         driver.pin = newPin;
         saveState();
         loadAdminData();
-        alert(`Le code PIN de ${driver.name} a été mis à jour avec succès.`);
+        alert(`PIN mis à jour pour ${driver.name}.`);
       }
     }
 
     function adminResetManagerPin() {
       const input = document.getElementById('admin-reset-manager-pin');
       const newPin = input.value.trim();
-      if (!newPin || newPin.length < 4) return alert("Le PIN manager doit faire au moins 4 chiffres.");
-
+      if (!newPin || newPin.length < 4) return alert("Le PIN manager doit contenir au moins 4 chiffres.");
       state.managerPin = newPin;
       saveState();
       input.value = '';
-      alert("Le code PIN du gestionnaire a été réinitialisé avec succès !");
+      alert("PIN Gestionnaire réinitialisé avec succès.");
     }
 
     function showTab(tabId) {
@@ -563,11 +628,11 @@
       const btnS = document.getElementById('btn-tab-summary');
 
       if (tabId === 'tab-drivers') {
-        btnD.className = "px-4 py-2.5 bg-indigo-600 text-white font-bold text-xs rounded-xl shadow transition";
-        btnS.className = "px-4 py-2.5 bg-slate-800 text-slate-300 font-bold text-xs rounded-xl hover:bg-slate-700 transition";
+        btnD.className = "px-4 py-2.5 bg-blue-600 text-white font-semibold text-xs rounded-xl shadow-sm transition";
+        btnS.className = "px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs rounded-xl hover:bg-slate-200 transition";
       } else {
-        btnS.className = "px-4 py-2.5 bg-indigo-600 text-white font-bold text-xs rounded-xl shadow transition";
-        btnD.className = "px-4 py-2.5 bg-slate-800 text-slate-300 font-bold text-xs rounded-xl hover:bg-slate-700 transition";
+        btnS.className = "px-4 py-2.5 bg-blue-600 text-white font-semibold text-xs rounded-xl shadow-sm transition";
+        btnD.className = "px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs rounded-xl hover:bg-slate-200 transition";
       }
     }
 
@@ -587,6 +652,7 @@
 
       const [year, month] = yearMonth.split('-').map(Number);
       const daysInMonth = new Date(year, month, 0).getDate();
+      const todayStr = new Date().toISOString().slice(0, 10);
 
       let currentWeekHtml = '';
       let weekCentSum = 0;
@@ -597,7 +663,7 @@
         const dateStr = `${yearMonth}-${day < 10 ? '0' + day : day}`;
         const dateObj = new Date(year, month - 1, day);
         const dayName = dateObj.toLocaleDateString('fr-FR', { weekday: 'short' });
-        const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+        const isToday = (dateStr === todayStr);
 
         const entryKey = `${state.currentUser.id}_${dateStr}`;
         const entry = state.entries[entryKey] || { matin: '', repasMidi: false, apresMidi: '', repasSoir: false };
@@ -611,34 +677,37 @@
         if (entry.repasSoir) weekSoirSum++;
 
         currentWeekHtml += `
-          <div class="p-4 bg-slate-900 rounded-2xl border border-slate-800 flex flex-col md:flex-row justify-between items-center gap-3 ${isWeekend ? 'bg-amber-950/10 border-amber-900/20' : ''}">
-            <div class="w-full md:w-32 font-bold text-white capitalize text-sm">${dayName} ${day}</div>
+          <div class="p-3.5 bg-white dark:bg-slate-900 rounded-xl border ${isToday ? 'border-blue-500 ring-2 ring-blue-500/20 bg-blue-50/10' : 'border-slate-200 dark:border-slate-800'} flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="w-full md:w-32 flex items-center space-x-2">
+              <span class="font-bold text-slate-900 dark:text-white capitalize text-sm">${dayName} ${day}</span>
+              ${isToday ? '<span class="bg-blue-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase">Aujourd\'hui</span>' : ''}
+            </div>
             
             <div class="grid grid-cols-2 md:grid-cols-4 gap-2 w-full">
               <div>
                 <label class="text-[10px] text-slate-400 font-bold block uppercase">Matin (c)</label>
-                <input type="number" step="0.01" value="${entry.matin}" onchange="updateEntry('${dateStr}', 'matin', this.value)" placeholder="0.00" class="w-full p-2.5 border border-slate-700 rounded-xl text-sm bg-slate-950 text-white font-semibold">
+                <input type="number" step="0.01" value="${entry.matin}" onchange="updateEntry('${dateStr}', 'matin', this.value)" placeholder="0.00" class="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg text-sm bg-slate-50 dark:bg-slate-950 font-semibold">
               </div>
 
               <div class="flex items-center space-x-2 pt-3">
-                <input type="checkbox" id="midi_${dateStr}" ${entry.repasMidi ? 'checked' : ''} onchange="updateEntry('${dateStr}', 'repasMidi', this.checked)" class="w-5 h-5 text-indigo-600 rounded bg-slate-950 border-slate-700">
-                <label for="midi_${dateStr}" class="text-xs font-bold text-slate-300">Repas Midi</label>
+                <input type="checkbox" id="midi_${dateStr}" ${entry.repasMidi ? 'checked' : ''} onchange="updateEntry('${dateStr}', 'repasMidi', this.checked)" class="w-4 h-4 text-blue-600 rounded">
+                <label for="midi_${dateStr}" class="text-xs font-semibold text-slate-700 dark:text-slate-300">Repas Midi</label>
               </div>
 
               <div>
                 <label class="text-[10px] text-slate-400 font-bold block uppercase">A.-Midi (c)</label>
-                <input type="number" step="0.01" value="${entry.apresMidi}" onchange="updateEntry('${dateStr}', 'apresMidi', this.value)" placeholder="0.00" class="w-full p-2.5 border border-slate-700 rounded-xl text-sm bg-slate-950 text-white font-semibold">
+                <input type="number" step="0.01" value="${entry.apresMidi}" onchange="updateEntry('${dateStr}', 'apresMidi', this.value)" placeholder="0.00" class="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg text-sm bg-slate-50 dark:bg-slate-950 font-semibold">
               </div>
 
               <div class="flex items-center space-x-2 pt-3">
-                <input type="checkbox" id="soir_${dateStr}" ${entry.repasSoir ? 'checked' : ''} onchange="updateEntry('${dateStr}', 'repasSoir', this.checked)" class="w-5 h-5 text-indigo-600 rounded bg-slate-950 border-slate-700">
-                <label for="soir_${dateStr}" class="text-xs font-bold text-slate-300">Repas Soir</label>
+                <input type="checkbox" id="soir_${dateStr}" ${entry.repasSoir ? 'checked' : ''} onchange="updateEntry('${dateStr}', 'repasSoir', this.checked)" class="w-4 h-4 text-blue-600 rounded">
+                <label for="soir_${dateStr}" class="text-xs font-semibold text-slate-700 dark:text-slate-300">Repas Soir</label>
               </div>
             </div>
 
-            <div class="w-full md:w-36 text-right border-t md:border-t-0 pt-2 md:pt-0 border-slate-800">
+            <div class="w-full md:w-36 text-right border-t md:border-t-0 pt-2 md:pt-0">
               <span class="text-[10px] text-slate-400 font-bold uppercase block">Total Jour</span>
-              <span class="font-black text-indigo-400 text-base">${totalCent} c</span>
+              <span class="font-bold text-blue-600 text-sm">${totalCent} c</span>
               <span class="text-xs text-slate-500 font-mono block">(${centToHHMM(totalCent)})</span>
             </div>
           </div>
@@ -646,14 +715,14 @@
 
         if (dateObj.getDay() === 0 || day === daysInMonth) {
           grid.innerHTML += `
-            <div class="bg-slate-950/60 p-4 rounded-2xl space-y-3 border border-slate-800">
+            <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl space-y-3 border border-slate-200 dark:border-slate-800">
               ${currentWeekHtml}
-              <div class="bg-slate-900 text-white p-4 rounded-xl flex flex-col md:flex-row justify-between items-center text-xs font-bold gap-2 border border-slate-800">
-                <span>TOTAL SEMAINE</span>
+              <div class="bg-slate-900 text-white p-3 rounded-xl flex flex-col md:flex-row justify-between items-center text-xs font-bold gap-2">
+                <span>BILAN SEMAINE</span>
                 <div class="flex space-x-4">
-                  <span>Midi: <strong class="text-indigo-400">${weekMidiSum}</strong></span>
-                  <span>Soir: <strong class="text-indigo-400">${weekSoirSum}</strong></span>
-                  <span class="text-amber-400 text-sm font-black">${weekCentSum.toFixed(2)} c (${centToHHMM(weekCentSum)})</span>
+                  <span>Midi: <strong class="text-blue-400">${weekMidiSum}</strong></span>
+                  <span>Soir: <strong class="text-blue-400">${weekSoirSum}</strong></span>
+                  <span class="text-emerald-400 text-sm font-bold">${weekCentSum.toFixed(2)} c (${centToHHMM(weekCentSum)})</span>
                 </div>
               </div>
             </div>
@@ -671,7 +740,6 @@
       }
       state.entries[entryKey][field] = val;
       saveState();
-
       syncToGoogleSheets(dateStr, state.entries[entryKey]);
       loadDriverMonthData();
     }
@@ -707,7 +775,7 @@
 
       const driver = state.drivers.find(d => d.id === driverId);
       if (!driver) {
-        reportEl.innerHTML = '<p class="text-center text-slate-500 py-8">Aucun chauffeur sélectionné.</p>';
+        reportEl.innerHTML = '<p class="text-center text-slate-500 py-8">Veuillez sélectionner un chauffeur.</p>';
         return;
       }
 
@@ -733,14 +801,14 @@
         if (entry.repasSoir) totalMonthSoir++;
 
         rowsHtml += `
-          <tr class="border-b border-slate-800 text-xs font-medium">
+          <tr class="border-b border-slate-100 dark:border-slate-800 text-xs">
             <td class="p-2.5 font-bold">${dateStr}</td>
             <td class="p-2.5">${entry.matin || '-'}</td>
-            <td class="p-2.5 font-bold text-indigo-400">${entry.repasMidi ? 'OUI' : '-'}</td>
+            <td class="p-2.5 font-bold text-blue-600">${entry.repasMidi ? 'OUI' : '-'}</td>
             <td class="p-2.5">${entry.apresMidi || '-'}</td>
-            <td class="p-2.5 font-bold text-indigo-400">${entry.repasSoir ? 'OUI' : '-'}</td>
-            <td class="p-2.5 font-black">${totalCent} c</td>
-            <td class="p-2.5 font-mono text-slate-400">${centToHHMM(totalCent)}</td>
+            <td class="p-2.5 font-bold text-blue-600">${entry.repasSoir ? 'OUI' : '-'}</td>
+            <td class="p-2.5 font-bold">${totalCent} c</td>
+            <td class="p-2.5 font-mono text-slate-500">${centToHHMM(totalCent)}</td>
           </tr>
         `;
       }
@@ -750,28 +818,27 @@
 
       reportEl.innerHTML = `
         <div class="space-y-6">
-          <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+          <div class="flex justify-between items-center border-b pb-4">
             <div>
-              <h2 class="text-xl font-black text-white">RELEVÉ MENSUEL DE PRESTATION</h2>
-              <p class="text-xs text-slate-400">Document comptable d'heures et d'indemnités repas</p>
+              <h2 class="text-lg font-bold">RELEVÉ MENSUEL DE PRESTATION</h2>
+              <p class="text-xs text-slate-500">Document comptable officiel</p>
             </div>
             <div class="text-right text-xs space-y-0.5">
               <p><strong>Période :</strong> ${yearMonth}</p>
               <p><strong>Chauffeur :</strong> ${driver.name}</p>
               <p><strong>Matricule :</strong> ${driver.matricule || 'N/A'}</p>
-              <p><strong>Immatriculation :</strong> ${driver.plate || 'N/A'}</p>
             </div>
           </div>
 
           <table class="w-full text-left border-collapse">
             <thead>
-              <tr class="bg-slate-950 text-[10px] font-black uppercase text-slate-400 border-b border-slate-800">
+              <tr class="bg-slate-50 dark:bg-slate-950 text-[10px] uppercase font-bold text-slate-500 border-b">
                 <th class="p-2.5">Date</th>
                 <th class="p-2.5">Matin</th>
-                <th class="p-2.5">Repas M.</th>
+                <th class="p-2.5">Midi</th>
                 <th class="p-2.5">A.-Midi</th>
-                <th class="p-2.5">Repas S.</th>
-                <th class="p-2.5">Total Cent.</th>
+                <th class="p-2.5">Soir</th>
+                <th class="p-2.5">Total</th>
                 <th class="p-2.5">HH:MM</th>
               </tr>
             </thead>
@@ -779,22 +846,14 @@
           </table>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="bg-slate-950 border border-slate-800 p-4 rounded-2xl space-y-1">
+            <div class="bg-slate-900 text-white p-4 rounded-xl space-y-1">
               <p class="text-[10px] text-slate-400 font-bold uppercase">TOTAL HEURES CUMULÉES</p>
-              <p class="text-2xl font-black text-white">${totalMonthCent.toFixed(2)} c</p>
-              <p class="text-xs text-amber-400 font-mono">Equivalent : ${centToHHMM(totalMonthCent)}</p>
+              <p class="text-xl font-bold">${totalMonthCent.toFixed(2)} c (${centToHHMM(totalMonthCent)})</p>
             </div>
-
-            <div class="bg-indigo-950/40 border border-indigo-900/40 p-4 rounded-2xl space-y-1">
-              <p class="text-[10px] text-indigo-300 font-bold uppercase">INDEMNITÉS REPAS ESTIMÉES</p>
-              <p class="text-2xl font-black text-white">${totalMealCost} €</p>
-              <p class="text-xs text-indigo-200">${totalMeals} repas pris au total (${rateMeal.toFixed(2)} € / repas)</p>
+            <div class="bg-blue-900 text-white p-4 rounded-xl space-y-1">
+              <p class="text-[10px] text-blue-200 font-bold uppercase">INDEMNITÉS REPAS</p>
+              <p class="text-xl font-bold">${totalMealCost} € <span class="text-xs font-normal">(${totalMeals} repas)</span></p>
             </div>
-          </div>
-
-          <div class="pt-8 grid grid-cols-2 gap-8 text-xs text-slate-400 font-bold">
-            <div>Signature Chauffeur :</div>
-            <div class="text-right">Signature Responsable :</div>
           </div>
         </div>
       `;
@@ -803,11 +862,11 @@
     function exportToPDF() {
       const element = document.getElementById('printable-area');
       const opt = {
-        margin:       0.4,
-        filename:     `SuiviPro_${state.currentMonth}.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2 },
-        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+        margin: 0.4,
+        filename: `SuiviPro_${state.currentMonth}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
       };
       html2pdf().set(opt).from(element).save();
     }
@@ -820,7 +879,6 @@
       loadDriverMonthData();
     }
 
-    // Modals PIN Chauffeur
     function openChangePinModal() { document.getElementById('pin-modal').classList.remove('hidden'); }
     function closeChangePinModal() { document.getElementById('pin-modal').classList.add('hidden'); document.getElementById('new-pin-input').value = ''; }
     function confirmChangePin() {
@@ -830,12 +888,11 @@
       if (driver) {
         driver.pin = newPin;
         saveState();
-        alert("Votre code PIN a été mis à jour avec succès !");
+        alert("PIN mis à jour avec succès.");
         closeChangePinModal();
       }
     }
 
-    // Modals PIN Gestionnaire
     function openManagerPinModal() { document.getElementById('manager-pin-modal').classList.remove('hidden'); }
     function closeManagerPinModal() { document.getElementById('manager-pin-modal').classList.add('hidden'); document.getElementById('new-manager-pin-input').value = ''; }
     function confirmManagerPinChange() {
@@ -843,7 +900,7 @@
       if (!newPin || newPin.length < 4) return alert("Le code PIN doit contenir au moins 4 chiffres.");
       state.managerPin = newPin;
       saveState();
-      alert("Votre mot de passe gestionnaire a été mis à jour avec succès !");
+      alert("Code PIN gestionnaire mis à jour.");
       closeManagerPinModal();
     }
 
