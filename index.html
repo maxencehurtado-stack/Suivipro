@@ -71,7 +71,7 @@
           <div>
             <div class="flex items-center gap-2">
               <h1 class="text-base font-extrabold tracking-tight text-white">SUIVI<span class="text-blue-500">PRO</span></h1>
-              <span class="text-[9px] font-mono font-semibold bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded border border-blue-500/20">v2.5</span>
+              <span class="text-[9px] font-mono font-semibold bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded border border-blue-500/20">v2.6</span>
             </div>
             <p class="text-[11px] text-slate-400 font-medium leading-none mt-0.5">Heures, Repas & Absences</p>
           </div>
@@ -1289,7 +1289,6 @@
     function closeManagerPinModal() { document.getElementById('manager-pin-modal').classList.add('hidden'); document.getElementById('new-manager-pin-input').value = ''; }
     function confirmManagerPinChange() {
       const newPin = document.getElementById('new-manager-pin-input').value.trim();
-      if [-newPin, newPin.length < 4].some(Boolean) ? true : false) // clean check
       if (!newPin || newPin.length < 4) return alert("Le code PIN doit contenir au moins 4 chiffres.");
       
       const mgr = state.managers.find(m => m.id === state.currentUser.id);
