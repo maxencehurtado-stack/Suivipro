@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Suivi Pro - Gestion d'Heures & Repas</title>
+  <title>Suivi Pro - Version Gestionnaire Avancée</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -29,23 +29,23 @@
   <style>
     @media print {
       body * { visibility: hidden; }
-      #printable-area, #printable-area * { visibility: visible; }
-      #printable-area { position: absolute; left: 0; top: 0; width: 100%; }
+      #printable-pdf-template, #printable-pdf-template * { visibility: visible; }
+      #printable-pdf-template { position: absolute; left: 0; top: 0; width: 100%; }
       .no-print { display: none !important; }
     }
-    .pdf-container {
+    .pdf-page-1, .pdf-page-2 {
       width: 100%;
-      max-width: 800px;
+      max-width: 780px;
       margin: 0 auto;
-      padding: 20px;
-      font-size: 11px;
-      line-height: 1.4;
+      padding: 15px;
+      font-size: 10px;
+      line-height: 1.25;
+      box-sizing: border-box;
+      background: white;
+      color: #0f172a;
     }
-    .page-break {
+    .pdf-page-break {
       page-break-before: always;
-      margin-top: 25px;
-      padding-top: 20px;
-      border-top: 2px dashed #cbd5e1;
     }
   </style>
 </head>
@@ -188,16 +188,16 @@
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-200 dark:border-slate-800 pb-4 gap-4">
               <div>
                 <h2 class="text-xl font-bold text-slate-900 dark:text-white">Espace Gestionnaire</h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Supervision des plannings, absences et éditions de paie</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Supervision, modification directe des saisies et exports</p>
               </div>
               <div class="flex flex-wrap gap-2">
-                <button id="btn-tab-summary" onclick="showTab('tab-summary')" class="px-4 py-2.5 bg-blue-600 text-white font-semibold text-xs rounded-xl shadow-sm transition">Rapports & Exports</button>
+                <button id="btn-tab-summary" onclick="showTab('tab-summary')" class="px-4 py-2.5 bg-blue-600 text-white font-semibold text-xs rounded-xl shadow-sm transition">Saisies & Rapports</button>
                 <button id="btn-tab-drivers" onclick="showTab('tab-drivers')" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition">Gestion Chauffeurs</button>
                 <button onclick="openManagerPinModal()" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition">🔑 Mon PIN</button>
               </div>
             </div>
 
-            <!-- ONGLET RAPPORT -->
+            <!-- ONGLET SAISIE & RAPPORT -->
             <div id="tab-summary" class="space-y-6">
               <div class="grid grid-cols-1 md:grid-cols-6 gap-3 bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
                 <div>
@@ -220,14 +220,43 @@
                   <button onclick="exportToCSV()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold p-2.5 border border-transparent rounded-xl shadow-sm text-xs transition flex items-center justify-center gap-1">📥 Exporter Excel (.csv)</button>
                 </div>
                 <div class="flex items-end">
-                  <button onclick="exportToPDF()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold p-2.5 border border-transparent rounded-xl shadow-sm text-xs transition flex items-center justify-center gap-1">📄 Imprimer PDF (2 Pages)</button>
+                  <button onclick="exportToPDF()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold p-2.5 border border-transparent rounded-xl shadow-sm text-xs transition flex items-center justify-center gap-1">📄 Générer PDF (2 Pages)</button>
                 </div>
               </div>
 
-              <!-- Zone Rapport Imprimable -->
-              <div id="printable-area" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-                <div id="manager-report-content"></div>
+              <!-- Cartes de Synthèse Espace Gestionnaire -->
+              <div id="manager-cards-summary" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+
+              <!-- VRAI TABLEAU DE BORD DE GESTION INTERACTIF (MODIFIABLE PAR LE GESTIONNAIRE) -->
+              <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                  <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">Feuille de Saisie Mensuelle (Modifiable en direct)</h3>
+                  <span class="text-xs text-slate-500">Toute modification est enregistrée automatiquement</span>
+                </div>
+                
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                  <table class="w-full text-left border-collapse bg-white dark:bg-slate-900 text-xs">
+                    <thead>
+                      <tr class="bg-slate-100 dark:bg-slate-950 text-slate-600 dark:text-slate-400 uppercase font-bold border-b border-slate-200 dark:border-slate-800">
+                        <th class="p-3">Date</th>
+                        <th class="p-3">Motif / Statut</th>
+                        <th class="p-3">Matin (c)</th>
+                        <th class="p-3">Repas Midi</th>
+                        <th class="p-3">A.-Midi (c)</th>
+                        <th class="p-3">Repas Soir</th>
+                        <th class="p-3">Total Jour</th>
+                      </tr>
+                    </thead>
+                    <tbody id="manager-interactive-table" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
+                  </table>
+                </div>
               </div>
+
+              <!-- TEMPLATE CACHÉ POUR GÉNÉRATION PDF RIGIDE DE 2 PAGES EXACTES -->
+              <div class="hidden">
+                <div id="printable-pdf-template"></div>
+              </div>
+
             </div>
 
             <!-- ONGLET CHAUFFEURS -->
@@ -379,15 +408,6 @@
     const CONFIG = {
       SCRIPT_URL: "https://script.google.com/macros/s/AKfycbzyS8IP1wUPXD2XmcfE-sk7IUi6V00skLYf-l-hJkjOwKG7wYugmCPTVF1eIFC_UiQ/exec",
       MASTER_ADMIN_PIN: "2157"
-    };
-
-    const ABSENCE_LABELS = {
-      "WORK": "Service Normal",
-      "CP": "Congé Payé",
-      "RTT": "Jour RTT",
-      "AM": "Arrêt Maladie",
-      "JF": "Jour Férié",
-      "CSS": "Congé Sans Solde"
     };
 
     let state = {
@@ -826,7 +846,7 @@
               ${isToday ? '<span class="bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Aujourd\'hui</span>' : ''}
             </div>
             
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-2 w-full">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-2.5 w-full">
               <div>
                 <label class="text-xs text-slate-500 dark:text-slate-400 font-bold block uppercase mb-1">Motif / Statut</label>
                 <select onchange="updateEntry('${dateStr}', 'absence', this.value)" class="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs bg-slate-50 dark:bg-slate-950 dark:text-white font-semibold">
@@ -894,26 +914,38 @@
     }
 
     function updateEntry(dateStr, field, val) {
-      const entryKey = `${state.currentUser.id}_${dateStr}`;
+      const driverId = (state.currentUser && state.currentUser.role === 'manager') 
+        ? document.getElementById('manager-select-driver').value 
+        : state.currentUser.id;
+
+      const entryKey = `${driverId}_${dateStr}`;
       if (!state.entries[entryKey]) {
         state.entries[entryKey] = { matin: '', repasMidi: false, apresMidi: '', repasSoir: false, absence: 'WORK' };
       }
       state.entries[entryKey][field] = val;
       saveState();
-      syncToGoogleSheets(dateStr, state.entries[entryKey]);
-      loadDriverMonthData();
+
+      syncToGoogleSheets(driverId, dateStr, state.entries[entryKey]);
+
+      if (state.currentUser && state.currentUser.role === 'manager') {
+        loadManagerData();
+      } else {
+        loadDriverMonthData();
+      }
     }
 
-    function syncToGoogleSheets(dateStr, entryData) {
+    function syncToGoogleSheets(driverId, dateStr, entryData) {
       const isAbsent = entryData.absence && entryData.absence !== 'WORK';
       const matinVal = isAbsent ? 0 : (parseFloat(entryData.matin) || 0);
       const amVal = isAbsent ? 0 : (parseFloat(entryData.apresMidi) || 0);
       const totalCent = (matinVal + amVal).toFixed(2);
 
+      const driver = state.drivers.find(d => d.id === driverId);
+
       const params = new URLSearchParams({
         action: "saveEntry",
-        driverId: state.currentUser.id,
-        driverName: state.currentUser.name,
+        driverId: driverId,
+        driverName: driver ? driver.name : '',
         yearMonth: state.currentMonth,
         date: dateStr,
         matin: entryData.matin || '',
@@ -932,15 +964,13 @@
     function loadManagerData() {
       const driverId = document.getElementById('manager-select-driver').value;
       const yearMonth = document.getElementById('manager-month-picker').value;
+      state.currentMonth = yearMonth;
+
       const rateMidi = parseFloat(document.getElementById('meal-midi-rate').value) || 15.00;
       const rateSoir = parseFloat(document.getElementById('meal-soir-rate').value) || 18.00;
-      const reportEl = document.getElementById('manager-report-content');
 
       const driver = state.drivers.find(d => d.id === driverId);
-      if (!driver) {
-        reportEl.innerHTML = '<p class="text-center text-slate-500 dark:text-slate-400 py-8">Veuillez sélectionner un chauffeur.</p>';
-        return;
-      }
+      if (!driver) return;
 
       const [year, month] = yearMonth.split('-').map(Number);
       const daysInMonth = new Date(year, month, 0).getDate();
@@ -949,18 +979,13 @@
       let totalMonthCent = 0;
       let totalMonthMidi = 0;
       let totalMonthSoir = 0;
-      
       let absenceCounts = { "CP": 0, "RTT": 0, "AM": 0, "JF": 0, "CSS": 0 };
 
-      let rowsHtml = '';
-      let weekCentSum = 0;
-      let weekMidiSum = 0;
-      let weekSoirSum = 0;
-      let weekIndex = 1;
+      let interactiveRowsHtml = '';
+      let pdfRowsHtml = '';
 
       for (let day = 1; day <= daysInMonth; day++) {
         const dateStr = `${yearMonth}-${day < 10 ? '0' + day : day}`;
-        const dateObj = new Date(year, month - 1, day);
         const entryKey = `${driver.id}_${dateStr}`;
         const entry = state.entries[entryKey] || { matin: '', repasMidi: false, apresMidi: '', repasSoir: false, absence: 'WORK' };
 
@@ -974,155 +999,173 @@
         const totalCent = (matinVal + amVal).toFixed(2);
 
         totalMonthCent += parseFloat(totalCent);
-        weekCentSum += parseFloat(totalCent);
+        if (entry.repasMidi && !isAbsent) totalMonthMidi++;
+        if (entry.repasSoir && !isAbsent) totalMonthSoir++;
 
-        if (entry.repasMidi && !isAbsent) { totalMonthMidi++; weekMidiSum++; }
-        if (entry.repasSoir && !isAbsent) { totalMonthSoir++; weekSoirSum++; }
-
-        const absenceTag = isAbsent ? `<span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold text-[10px]">${entry.absence}</span>` : '-';
-
-        rowsHtml += `
-          <tr class="border-b border-slate-200 dark:border-slate-800 text-xs">
-            <td class="py-2 px-2 font-bold">${dateStr}</td>
-            <td class="py-2 px-2">${absenceTag}</td>
-            <td class="py-2 px-2">${isAbsent ? '-' : (entry.matin || '-')}</td>
-            <td class="py-2 px-2 font-bold ${entry.repasMidi && !isAbsent ? 'text-blue-600 dark:text-blue-400' : ''}">${entry.repasMidi && !isAbsent ? 'OUI' : '-'}</td>
-            <td class="py-2 px-2">${isAbsent ? '-' : (entry.apresMidi || '-')}</td>
-            <td class="py-2 px-2 font-bold ${entry.repasSoir && !isAbsent ? 'text-blue-600 dark:text-blue-400' : ''}">${entry.repasSoir && !isAbsent ? 'OUI' : '-'}</td>
-            <td class="py-2 px-2 font-bold">${totalCent} c</td>
-            <td class="py-2 px-2 font-mono text-slate-500 dark:text-slate-400">${centToHHMM(totalCent)}</td>
+        // 1. Remplissage de la grille interactive Gestionnaire
+        interactiveRowsHtml += `
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
+            <td class="p-3 font-bold text-slate-900 dark:text-white">${dateStr}</td>
+            <td class="p-2">
+              <select onchange="updateEntry('${dateStr}', 'absence', this.value)" class="p-1.5 border border-slate-200 dark:border-slate-800 rounded bg-slate-50 dark:bg-slate-950 dark:text-white font-semibold">
+                <option value="WORK" ${entry.absence === 'WORK' ? 'selected' : ''}>Service Normal</option>
+                <option value="CP" ${entry.absence === 'CP' ? 'selected' : ''}>CP (Congé Payé)</option>
+                <option value="RTT" ${entry.absence === 'RTT' ? 'selected' : ''}>RTT</option>
+                <option value="AM" ${entry.absence === 'AM' ? 'selected' : ''}>Maladie</option>
+                <option value="JF" ${entry.absence === 'JF' ? 'selected' : ''}>Férié</option>
+                <option value="CSS" ${entry.absence === 'CSS' ? 'selected' : ''}>Sans Solde</option>
+              </select>
+            </td>
+            <td class="p-2">
+              <input type="number" step="0.01" ${isAbsent ? 'disabled' : ''} value="${entry.matin}" onchange="updateEntry('${dateStr}', 'matin', this.value)" placeholder="0.00" class="w-20 p-1.5 border border-slate-200 dark:border-slate-800 rounded bg-slate-50 dark:bg-slate-950 dark:text-white font-mono ${isAbsent ? 'opacity-30' : ''}">
+            </td>
+            <td class="p-2 text-center">
+              <input type="checkbox" ${isAbsent ? 'disabled' : ''} ${entry.repasMidi ? 'checked' : ''} onchange="updateEntry('${dateStr}', 'repasMidi', this.checked)" class="w-4 h-4 text-blue-600 rounded">
+            </td>
+            <td class="p-2">
+              <input type="number" step="0.01" ${isAbsent ? 'disabled' : ''} value="${entry.apresMidi}" onchange="updateEntry('${dateStr}', 'apresMidi', this.value)" placeholder="0.00" class="w-20 p-1.5 border border-slate-200 dark:border-slate-800 rounded bg-slate-50 dark:bg-slate-950 dark:text-white font-mono ${isAbsent ? 'opacity-30' : ''}">
+            </td>
+            <td class="p-2 text-center">
+              <input type="checkbox" ${isAbsent ? 'disabled' : ''} ${entry.repasSoir ? 'checked' : ''} onchange="updateEntry('${dateStr}', 'repasSoir', this.checked)" class="w-4 h-4 text-blue-600 rounded">
+            </td>
+            <td class="p-3 font-bold text-blue-600 dark:text-blue-400">
+              ${totalCent} c <span class="text-slate-400 font-normal font-mono">(${centToHHMM(totalCent)})</span>
+            </td>
           </tr>
         `;
 
-        if (dateObj.getDay() === 0 || day === daysInMonth) {
-          rowsHtml += `
-            <tr class="bg-slate-100 dark:bg-slate-800/80 font-bold text-xs border-b-2 border-slate-300 dark:border-slate-700">
-              <td colspan="3" class="py-2 px-2 text-slate-700 dark:text-slate-300">TOTAL SEMAINE ${weekIndex}</td>
-              <td class="py-2 px-2 text-blue-700 dark:text-blue-400">${weekMidiSum} midi</td>
-              <td></td>
-              <td class="py-2 px-2 text-blue-700 dark:text-blue-400">${weekSoirSum} soir</td>
-              <td class="py-2 px-2 text-emerald-700 dark:text-emerald-400">${weekCentSum.toFixed(2)} c</td>
-              <td class="py-2 px-2 font-mono text-emerald-700 dark:text-emerald-400">${centToHHMM(weekCentSum)}</td>
-            </tr>
-          `;
-          weekCentSum = 0; weekMidiSum = 0; weekSoirSum = 0; weekIndex++;
-        }
+        // 2. Remplissage des lignes propres pour le PDF
+        pdfRowsHtml += `
+          <tr style="border-bottom: 1px solid #e2e8f0;">
+            <td style="padding: 4px; font-weight: bold;">${dateStr}</td>
+            <td style="padding: 4px;">${isAbsent ? entry.absence : 'Normal'}</td>
+            <td style="padding: 4px;">${isAbsent ? '-' : (entry.matin || '-')}</td>
+            <td style="padding: 4px; font-weight: bold; color: #2563eb;">${entry.repasMidi && !isAbsent ? 'OUI' : '-'}</td>
+            <td style="padding: 4px;">${isAbsent ? '-' : (entry.apresMidi || '-')}</td>
+            <td style="padding: 4px; font-weight: bold; color: #2563eb;">${entry.repasSoir && !isAbsent ? 'OUI' : '-'}</td>
+            <td style="padding: 4px; font-weight: bold;">${totalCent} c</td>
+            <td style="padding: 4px; font-family: monospace;">${centToHHMM(totalCent)}</td>
+          </tr>
+        `;
       }
+
+      document.getElementById('manager-interactive-table').innerHTML = interactiveRowsHtml;
 
       const totalMidiCost = (totalMonthMidi * rateMidi).toFixed(2);
       const totalSoirCost = (totalMonthSoir * rateSoir).toFixed(2);
       const totalGlobalRepas = (parseFloat(totalMidiCost) + parseFloat(totalSoirCost)).toFixed(2);
 
-      reportEl.innerHTML = `
-        <div class="pdf-container">
-          <!-- PAGE 1 : FEUILLE DE TEMPS ET ABSENCES -->
-          <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3 mb-4">
+      // Cartes de synthèse à l'écran
+      document.getElementById('manager-cards-summary').innerHTML = `
+        <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-1">
+          <span class="text-xs text-slate-500 font-bold uppercase">Volume d'Heures Mois</span>
+          <p class="text-2xl font-black text-slate-900 dark:text-white">${totalMonthCent.toFixed(2)} c</p>
+          <p class="text-xs text-blue-600 font-mono font-bold">Équivalent : ${centToHHMM(totalMonthCent)}</p>
+        </div>
+
+        <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-1">
+          <span class="text-xs text-slate-500 font-bold uppercase">Indemnités Repas</span>
+          <p class="text-2xl font-black text-emerald-600">${totalGlobalRepas} €</p>
+          <p class="text-xs text-slate-500">${totalMonthMidi} midis (${totalMidiCost}€) | ${totalMonthSoir} soirs (${totalSoirCost}€)</p>
+        </div>
+
+        <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-1">
+          <span class="text-xs text-slate-500 font-bold uppercase">Jours d'Absences</span>
+          <p class="text-2xl font-black text-amber-600">${absenceCounts['CP'] + absenceCounts['RTT'] + absenceCounts['AM']} j</p>
+          <p class="text-xs text-slate-500">CP: ${absenceCounts['CP']} | RTT: ${absenceCounts['RTT']} | Maladie: ${absenceCounts['AM']}</p>
+        </div>
+      `;
+
+      // 3. Remplissage STRICT du Template PDF (2 Pages A4 réelles)
+      document.getElementById('printable-pdf-template').innerHTML = `
+        <div class="pdf-page-1">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0f172a; padding-bottom: 8px; margin-bottom: 12px;">
             <div>
-              <h2 class="text-lg font-black tracking-tight text-slate-900 dark:text-white">RELEVÉ MENSUEL des heures et repas</h2>
-              <p class="text-xs text-slate-500 dark:text-slate-400">Édité le ${todayDateStr} — Page 1/2 (Planning Quotidien)</p>
+              <h2 style="font-size: 14px; font-weight: 900; margin: 0;">RELEVÉ MENSUEL DES HEURES ET REPAS</h2>
+              <p style="font-size: 9px; color: #64748b; margin: 2px 0 0 0;">Édité le ${todayDateStr} — Page 1/2 (Planning Quotidien)</p>
             </div>
-            <div class="text-right text-xs space-y-0.5 text-slate-700 dark:text-slate-300">
-              <p><strong>Période :</strong> ${yearMonth}</p>
-              <p><strong>Chauffeur :</strong> ${driver.name}</p>
-              <p><strong>Matricule :</strong> ${driver.matricule || 'N/A'} | <strong>Immat :</strong> ${driver.plate || 'N/A'}</p>
+            <div style="text-align: right; font-size: 9px;">
+              <p style="margin: 0;"><strong>Période :</strong> ${yearMonth}</p>
+              <p style="margin: 0;"><strong>Chauffeur :</strong> ${driver.name}</p>
+              <p style="margin: 0;"><strong>Matricule :</strong> ${driver.matricule || 'N/A'} | <strong>Immat :</strong> ${driver.plate || 'N/A'}</p>
             </div>
           </div>
 
-          <table class="w-full text-left border-collapse mb-4">
+          <table style="width: 100%; border-collapse: collapse; font-size: 9.5px; text-align: left;">
             <thead>
-              <tr class="bg-slate-100 dark:bg-slate-950 text-xs uppercase font-bold text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
-                <th class="py-2 px-2">Date</th>
-                <th class="py-2 px-2">Statut</th>
-                <th class="py-2 px-2">Matin</th>
-                <th class="py-2 px-2">Midi</th>
-                <th class="py-2 px-2">A.-Midi</th>
-                <th class="py-2 px-2">Soir</th>
-                <th class="py-2 px-2">Total Jour</th>
-                <th class="py-2 px-2">HH:MM</th>
+              <tr style="background-color: #f1f5f9; text-transform: uppercase; font-weight: bold; border-bottom: 2px solid #cbd5e1;">
+                <th style="padding: 4px;">Date</th>
+                <th style="padding: 4px;">Statut</th>
+                <th style="padding: 4px;">Matin</th>
+                <th style="padding: 4px;">Midi</th>
+                <th style="padding: 4px;">A.-Midi</th>
+                <th style="padding: 4px;">Soir</th>
+                <th style="padding: 4px;">Total Jour</th>
+                <th style="padding: 4px;">HH:MM</th>
               </tr>
             </thead>
-            <tbody>${rowsHtml}</tbody>
+            <tbody>${pdfRowsHtml}</tbody>
           </table>
+        </div>
 
-          <!-- PAGE 2 : SYNTHÈSE COMPTABLE ET VALIDATION -->
-          <div class="page-break">
-            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3 mb-4">
-              <div>
-                <h2 class="text-lg font-black tracking-tight text-slate-900 dark:text-white">SYNTHÈSE COMPTABLE & DÉCOMPTE DE PAIE</h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Édité le ${todayDateStr} — Page 2/2 (Récapitulatif Bilan)</p>
-              </div>
-              <div class="text-right text-xs text-slate-700 dark:text-slate-300">
-                <p><strong>Chauffeur :</strong> ${driver.name}</p>
-              </div>
+        <div class="pdf-page-2 pdf-page-break">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0f172a; padding-bottom: 8px; margin-bottom: 16px;">
+            <div>
+              <h2 style="font-size: 14px; font-weight: 900; margin: 0;">SYNTHÈSE COMPTABLE ET VALIDATION DE PAIE</h2>
+              <p style="font-size: 9px; color: #64748b; margin: 2px 0 0 0;">Édité le ${todayDateStr} — Page 2/2 (Bilan de Période)</p>
+            </div>
+            <div style="text-align: right; font-size: 9px;">
+              <p style="margin: 0;"><strong>Chauffeur :</strong> ${driver.name}</p>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+            <div style="background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
+              <h3 style="font-size: 10px; text-transform: uppercase; margin: 0 0 6px 0; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px;">Bilan Général Heures</h3>
+              <p style="margin: 4px 0;">• Volume Travaillé : <strong>${totalMonthCent.toFixed(2)} c</strong></p>
+              <p style="margin: 4px 0;">• Équivalent Heures / Min : <strong>${centToHHMM(totalMonthCent)}</strong></p>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 mb-6">
-              <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2">
-                <h3 class="text-xs font-black uppercase text-slate-500 border-b pb-1">Bilan Général Heures</h3>
-                <div class="flex justify-between items-center pt-1">
-                  <span class="text-xs">Heures Travaillées :</span>
-                  <span class="text-sm font-black text-blue-600">${totalMonthCent.toFixed(2)} c</span>
-                </div>
-                <div class="flex justify-between items-center">
-                  <span class="text-xs">Équivalent Heures/Min :</span>
-                  <span class="text-xs font-mono font-bold">${centToHHMM(totalMonthCent)}</span>
-                </div>
-              </div>
+            <div style="background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
+              <h3 style="font-size: 10px; text-transform: uppercase; margin: 0 0 6px 0; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px;">Bilan Indemnités Repas</h3>
+              <p style="margin: 3px 0;">• Repas Midi (${totalMonthMidi} x ${rateMidi.toFixed(2)} €) : <strong>${totalMidiCost} €</strong></p>
+              <p style="margin: 3px 0;">• Repas Soir (${totalMonthSoir} x ${rateSoir.toFixed(2)} €) : <strong>${totalSoirCost} €</strong></p>
+              <p style="margin: 6px 0 0 0; font-weight: bold; color: #047857; border-top: 1px solid #e2e8f0; padding-top: 4px;">Total Indemnités : ${totalGlobalRepas} €</p>
+            </div>
+          </div>
 
-              <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2">
-                <h3 class="text-xs font-black uppercase text-slate-500 border-b pb-1">Bilan Indemnités Repas</h3>
-                <div class="flex justify-between text-xs">
-                  <span>• Repas Midi (${totalMonthMidi} x ${rateMidi.toFixed(2)} €) :</span>
-                  <strong>${totalMidiCost} €</strong>
-                </div>
-                <div class="flex justify-between text-xs">
-                  <span>• Repas Soir (${totalMonthSoir} x ${rateSoir.toFixed(2)} €) :</span>
-                  <strong>${totalSoirCost} €</strong>
-                </div>
-                <div class="flex justify-between items-center text-xs font-bold text-emerald-700 dark:text-emerald-400 border-t pt-1">
-                  <span>Total Indemnités :</span>
-                  <span class="text-sm">${totalGlobalRepas} €</span>
-                </div>
+          <div style="background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+            <h3 style="font-size: 10px; text-transform: uppercase; margin: 0 0 8px 0; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px;">Décompte des Absences & Congés</h3>
+            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; text-align: center;">
+              <div style="background: white; padding: 6px; border-radius: 6px; border: 1px solid #cbd5e1;">
+                <span style="display: block; font-size: 8px; color: #64748b;">CONGÉS PAYÉS</span>
+                <strong style="font-size: 12px;">${absenceCounts["CP"]} j</strong>
+              </div>
+              <div style="background: white; padding: 6px; border-radius: 6px; border: 1px solid #cbd5e1;">
+                <span style="display: block; font-size: 8px; color: #64748b;">RTT</span>
+                <strong style="font-size: 12px;">${absenceCounts["RTT"]} j</strong>
+              </div>
+              <div style="background: white; padding: 6px; border-radius: 6px; border: 1px solid #cbd5e1;">
+                <span style="display: block; font-size: 8px; color: #64748b;">MALADIE</span>
+                <strong style="font-size: 12px;">${absenceCounts["AM"]} j</strong>
+              </div>
+              <div style="background: white; padding: 6px; border-radius: 6px; border: 1px solid #cbd5e1;">
+                <span style="display: block; font-size: 8px; color: #64748b;">FÉRIÉS</span>
+                <strong style="font-size: 12px;">${absenceCounts["JF"]} j</strong>
+              </div>
+              <div style="background: white; padding: 6px; border-radius: 6px; border: 1px solid #cbd5e1;">
+                <span style="display: block; font-size: 8px; color: #64748b;">SANS SOLDE</span>
+                <strong style="font-size: 12px;">${absenceCounts["CSS"]} j</strong>
               </div>
             </div>
+          </div>
 
-            <!-- Tableau Décompte des Absences -->
-            <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 mb-6">
-              <h3 class="text-xs font-black uppercase text-slate-500 border-b pb-2 mb-3">Décompte Mensuel des Absences & Congés</h3>
-              <div class="grid grid-cols-5 gap-2 text-center text-xs">
-                <div class="p-2 bg-white dark:bg-slate-900 rounded border">
-                  <span class="block text-[10px] text-slate-400 font-bold uppercase">Congés Payés</span>
-                  <span class="text-base font-black">${absenceCounts["CP"]} j</span>
-                </div>
-                <div class="p-2 bg-white dark:bg-slate-900 rounded border">
-                  <span class="block text-[10px] text-slate-400 font-bold uppercase">RTT</span>
-                  <span class="text-base font-black">${absenceCounts["RTT"]} j</span>
-                </div>
-                <div class="p-2 bg-white dark:bg-slate-900 rounded border">
-                  <span class="block text-[10px] text-slate-400 font-bold uppercase">Maladie</span>
-                  <span class="text-base font-black">${absenceCounts["AM"]} j</span>
-                </div>
-                <div class="p-2 bg-white dark:bg-slate-900 rounded border">
-                  <span class="block text-[10px] text-slate-400 font-bold uppercase">J. Fériés</span>
-                  <span class="text-base font-black">${absenceCounts["JF"]} j</span>
-                </div>
-                <div class="p-2 bg-white dark:bg-slate-900 rounded border">
-                  <span class="block text-[10px] text-slate-400 font-bold uppercase">Sans Solde</span>
-                  <span class="text-base font-black">${absenceCounts["CSS"]} j</span>
-                </div>
-              </div>
+          <div style="border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px;">
+            <p style="font-size: 9px; color: #94a3b8; margin: 0 0 30px 0;">Observations / Remarques :</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 9px; border-top: 1px solid #e2e8f0; padding-top: 10px;">
+              <div>Signature Chauffeur (précédée de "Lu et approuvé") :</div>
+              <div style="text-align: right;">Signature Responsable Exploitation :</div>
             </div>
-
-            <!-- Validation et Remarques -->
-            <div class="border border-slate-200 dark:border-slate-800 p-4 rounded-xl space-y-6">
-              <p class="text-xs text-slate-400">Observations / Remarques :</p>
-              <div class="h-12"></div>
-              <div class="grid grid-cols-2 gap-8 text-xs text-slate-600 dark:text-slate-300 border-t pt-4">
-                <div>Signature Chauffeur (précédée de "Lu et approuvé") :</div>
-                <div class="text-right">Signature Responsable Exploitation :</div>
-              </div>
-            </div>
-
           </div>
         </div>
       `;
@@ -1160,22 +1203,17 @@
     }
 
     function exportToPDF() {
-      const element = document.getElementById('printable-area');
+      const element = document.getElementById('printable-pdf-template');
       
-      const originalClass = element.className;
-      element.className = "bg-white text-slate-900 rounded-2xl border border-slate-200 shadow-sm overflow-hidden";
-
       const opt = {
-        margin:       [0.2, 0.2, 0.2, 0.2],
+        margin:       [0, 0, 0, 0],
         filename:     `Releve_Mensuel_${state.currentMonth}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { scale: 2, useCORS: true },
         jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
       };
 
-      html2pdf().set(opt).from(element).save().then(() => {
-        element.className = originalClass;
-      });
+      html2pdf().set(opt).from(element).save();
     }
 
     function changeMonth(delta) {
