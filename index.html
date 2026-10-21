@@ -12,11 +12,13 @@
         extend: {
           colors: {
             brand: {
-              50: '#f0f9ff',
-              100: '#e0f2fe',
-              500: '#0284c7',
-              600: '#0369a1',
-              700: '#075985',
+              50: '#f0f7ff',
+              100: '#e0effe',
+              500: '#2563eb',
+              600: '#1d4ed8',
+              700: '#1e40af',
+              800: '#1e3a8a',
+              900: '#172554',
             }
           }
         }
@@ -33,11 +35,11 @@
     }
     .pdf-compact {
       width: 100%;
-      max-width: 780px;
+      max-width: 800px;
       margin: 0 auto;
-      padding: 12px;
-      font-size: 10.5px;
-      line-height: 1.25;
+      padding: 16px;
+      font-size: 11px;
+      line-height: 1.35;
     }
   </style>
 </head>
@@ -45,39 +47,50 @@
 
   <div>
     <!-- EN-TÊTE PRINCIPAL -->
-    <header class="bg-slate-900 text-white shadow border-b border-slate-800 sticky top-0 z-40">
-      <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+    <header class="bg-slate-900 text-white shadow-md border-b border-slate-800 sticky top-0 z-40">
+      <div class="max-w-6xl mx-auto px-4 py-3.5 flex justify-between items-center">
         <div class="flex items-center space-x-3">
-          <div class="bg-blue-600 text-white p-2 rounded-xl font-black text-base tracking-wider shadow-sm">SP</div>
+          <div class="bg-gradient-to-br from-blue-600 to-indigo-700 text-white p-2.5 rounded-2xl font-black text-lg tracking-wider shadow-inner flex items-center justify-center w-10 h-10">
+            SP
+          </div>
           <div>
-            <h1 class="text-base font-bold tracking-tight">Suivi Pro</h1>
-            <p class="text-[10px] text-slate-400 font-medium">Gestion des Heures & Indemnités Repas</p>
+            <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+              Suivi Pro
+            </h1>
+            <p class="text-xs text-slate-400 font-medium">Gestion des Heures & Indemnités Repas</p>
           </div>
         </div>
         
         <div class="flex items-center space-x-3">
-          <div id="live-datetime" class="hidden md:block text-xs text-slate-400 font-mono bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700"></div>
+          <div id="live-datetime" class="hidden md:flex items-center gap-2 text-xs text-slate-300 font-mono bg-slate-800 px-3.5 py-2 rounded-xl border border-slate-700/80 shadow-sm">
+            <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span id="live-datetime-text"></span>
+          </div>
 
-          <button onclick="toggleDarkMode()" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition border border-slate-700" title="Basculer le thème">
+          <button onclick="toggleDarkMode()" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition border border-slate-700 flex items-center justify-center" title="Basculer le thème">
             <span id="theme-icon">🌙</span>
           </button>
 
           <div id="user-status-bar" class="flex items-center space-x-2 text-sm">
-            <span id="current-user-badge" class="bg-slate-800 px-3 py-1.5 rounded-full text-slate-300 border border-slate-700 text-xs font-semibold">Non connecté</span>
-            <button id="logout-btn" onclick="logout()" class="hidden bg-rose-600 hover:bg-rose-700 px-3 py-1.5 rounded-full text-white font-semibold text-xs transition shadow-sm">Déconnexion</button>
+            <span id="current-user-badge" class="bg-slate-800 px-3.5 py-2 rounded-full text-slate-300 border border-slate-700 text-xs font-semibold">Non connecté</span>
+            <button id="logout-btn" onclick="logout()" class="hidden bg-rose-600 hover:bg-rose-700 px-3.5 py-2 rounded-full text-white font-semibold text-xs transition shadow-sm">Déconnexion</button>
           </div>
         </div>
       </div>
     </header>
 
-    <main class="max-w-6xl mx-auto px-4 mt-6">
+    <main class="max-w-6xl mx-auto px-4 mt-8">
 
       <!-- ÉCRAN DE CONNEXION -->
-      <section id="login-view" class="max-w-md mx-auto bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800">
+      <section id="login-view" class="max-w-md mx-auto bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-xl border border-slate-200 dark:border-slate-800 transition-all">
         
-        <div class="flex rounded-xl bg-slate-100 dark:bg-slate-950 p-1 mb-6 border border-slate-200 dark:border-slate-800">
-          <button id="tab-btn-driver" onclick="switchLoginTab('driver')" class="w-1/2 py-2.5 text-xs font-bold rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm transition">Espace Chauffeur</button>
-          <button id="tab-btn-manager" onclick="switchLoginTab('manager')" class="w-1/2 py-2.5 text-xs font-bold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 transition">Espace Gestionnaire</button>
+        <div class="flex rounded-2xl bg-slate-100 dark:bg-slate-950 p-1.5 mb-6 border border-slate-200 dark:border-slate-800">
+          <button id="tab-btn-driver" onclick="switchLoginTab('driver')" class="w-1/2 py-2.5 text-xs font-bold rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm transition flex items-center justify-center gap-1.5">
+            🚚 Chauffeur
+          </button>
+          <button id="tab-btn-manager" onclick="switchLoginTab('manager')" class="w-1/2 py-2.5 text-xs font-bold rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition flex items-center justify-center gap-1.5">
+            📊 Gestionnaire
+          </button>
         </div>
 
         <div class="text-center mb-6">
@@ -88,17 +101,17 @@
         <!-- Formulaire Chauffeur -->
         <div id="login-form-driver" class="space-y-4">
           <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Chauffeur</label>
-            <select id="login-driver-id" class="w-full p-3 border rounded-xl bg-slate-50 dark:bg-slate-950 dark:border-slate-800 dark:text-white font-medium text-sm focus:ring-2 focus:ring-blue-500">
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">Chauffeur</label>
+            <select id="login-driver-id" class="w-full p-3.5 border rounded-xl bg-slate-50 dark:bg-slate-950 dark:border-slate-800 dark:text-white font-semibold text-sm focus:ring-2 focus:ring-blue-500">
               <option value="">-- Sélectionner un chauffeur --</option>
             </select>
           </div>
 
           <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Code PIN</label>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">Code PIN</label>
             <div class="relative">
-              <input type="password" id="login-pin-driver" maxlength="6" inputmode="numeric" placeholder="••••" class="w-full p-3 pr-10 border rounded-xl bg-slate-50 dark:bg-slate-950 dark:border-slate-800 dark:text-white text-center tracking-widest text-xl font-mono focus:ring-2 focus:ring-blue-500">
-              <button type="button" onclick="togglePasswordVisibility('login-pin-driver', 'eye-icon-driver')" class="absolute right-3 top-3 text-slate-400 hover:text-slate-600 text-xs">
+              <input type="password" id="login-pin-driver" maxlength="6" inputmode="numeric" placeholder="••••" class="w-full p-3.5 pr-12 border rounded-xl bg-slate-50 dark:bg-slate-950 dark:border-slate-800 dark:text-white text-center tracking-widest text-xl font-mono focus:ring-2 focus:ring-blue-500">
+              <button type="button" onclick="togglePasswordVisibility('login-pin-driver', 'eye-icon-driver')" class="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-sm">
                 <span id="eye-icon-driver">👁️‍🗨️</span>
               </button>
             </div>
@@ -108,14 +121,14 @@
         <!-- Formulaire Gestionnaire -->
         <div id="login-form-manager" class="space-y-4 hidden">
           <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Gestionnaire</label>
-            <select id="login-manager-id" class="w-full p-3 border rounded-xl bg-slate-50 dark:bg-slate-950 dark:border-slate-800 dark:text-white font-medium text-sm focus:ring-2 focus:ring-blue-500"></select>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">Gestionnaire</label>
+            <select id="login-manager-id" class="w-full p-3.5 border rounded-xl bg-slate-50 dark:bg-slate-950 dark:border-slate-800 dark:text-white font-semibold text-sm focus:ring-2 focus:ring-blue-500"></select>
           </div>
           <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Code PIN</label>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">Code PIN</label>
             <div class="relative">
-              <input type="password" id="login-pin-manager" maxlength="6" inputmode="numeric" placeholder="••••" class="w-full p-3 pr-10 border rounded-xl bg-slate-50 dark:bg-slate-950 dark:border-slate-800 dark:text-white text-center tracking-widest text-xl font-mono focus:ring-2 focus:ring-blue-500">
-              <button type="button" onclick="togglePasswordVisibility('login-pin-manager', 'eye-icon-manager')" class="absolute right-3 top-3 text-slate-400 hover:text-slate-600 text-xs">
+              <input type="password" id="login-pin-manager" maxlength="6" inputmode="numeric" placeholder="••••" class="w-full p-3.5 pr-12 border rounded-xl bg-slate-50 dark:bg-slate-950 dark:border-slate-800 dark:text-white text-center tracking-widest text-xl font-mono focus:ring-2 focus:ring-blue-500">
+              <button type="button" onclick="togglePasswordVisibility('login-pin-manager', 'eye-icon-manager')" class="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-sm">
                 <span id="eye-icon-manager">👁️‍🗨️</span>
               </button>
             </div>
@@ -124,7 +137,7 @@
 
         <div id="login-error" class="hidden mt-4 text-rose-600 dark:text-rose-400 text-xs font-semibold text-center bg-rose-50 dark:bg-rose-950/50 p-3 rounded-xl border border-rose-200 dark:border-rose-900"></div>
 
-        <button onclick="handleLogin()" class="w-full mt-6 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-bold py-3.5 rounded-xl shadow transition text-sm">Se Connecter</button>
+        <button onclick="handleLogin()" class="w-full mt-6 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-500/20 transition text-sm">Se Connecter</button>
       </section>
 
       <!-- APPLICATION PRINCIPALE -->
@@ -134,29 +147,31 @@
         <section id="driver-space" class="space-y-6">
           <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="flex items-center space-x-2">
-              <button onclick="changeMonth(-1)" class="px-3 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 font-bold text-xs transition">◄ Mois Précédent</button>
-              <input type="month" id="driver-month-picker" onchange="loadDriverMonthData()" class="p-2 border border-slate-200 dark:border-slate-800 rounded-xl font-bold bg-slate-50 dark:bg-slate-950 dark:text-white text-xs">
-              <button onclick="changeMonth(1)" class="px-3 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 font-bold text-xs transition">Mois Suivant ►</button>
+              <button onclick="changeMonth(-1)" class="px-3.5 py-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 font-bold text-xs transition flex items-center gap-1">◄ Mois Précédent</button>
+              <input type="month" id="driver-month-picker" onchange="loadDriverMonthData()" class="p-2.5 border border-slate-200 dark:border-slate-800 rounded-xl font-bold bg-slate-50 dark:bg-slate-950 dark:text-white text-xs">
+              <button onclick="changeMonth(1)" class="px-3.5 py-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 font-bold text-xs transition flex items-center gap-1">Mois Suivant ►</button>
             </div>
 
             <div class="flex items-center space-x-3">
-              <button onclick="openChangePinModal()" class="text-xs bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 px-3 py-2 rounded-xl font-semibold border border-slate-200 dark:border-slate-800 transition">🔑 Modifier mon PIN</button>
-              <span id="sync-status" class="text-xs px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 font-semibold flex items-center gap-1.5 border border-emerald-200 dark:border-emerald-900">
+              <button onclick="openChangePinModal()" class="text-xs bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 px-3.5 py-2.5 rounded-xl font-semibold border border-slate-200 dark:border-slate-800 transition">🔑 Modifier mon PIN</button>
+              <span id="sync-status" class="text-xs px-3.5 py-2 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 font-semibold flex items-center gap-1.5 border border-emerald-200 dark:border-emerald-900">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Cloud Synchro
               </span>
             </div>
           </div>
 
           <!-- Recapitulatif Mois Chauffeur -->
-          <div id="driver-month-summary-card" class="bg-slate-900 text-white p-4 rounded-2xl border border-slate-800 flex flex-wrap justify-between items-center gap-4">
+          <div id="driver-month-summary-card" class="bg-gradient-to-r from-slate-900 to-indigo-950 text-white p-5 rounded-2xl border border-slate-800 flex flex-wrap justify-between items-center gap-4 shadow-md">
             <div>
-              <span class="text-[10px] text-slate-400 font-bold uppercase block">Bilan Mensuel Global</span>
-              <span id="driver-month-total-cent" class="text-2xl font-black text-blue-400">0.00 c</span>
-              <span id="driver-month-total-hhmm" class="text-xs text-slate-300 font-mono ml-2">(0h00)</span>
+              <span class="text-xs text-slate-400 font-bold uppercase block">Bilan Mensuel Global</span>
+              <div class="flex items-baseline space-x-2 mt-1">
+                <span id="driver-month-total-cent" class="text-3xl font-black text-blue-400">0.00 c</span>
+                <span id="driver-month-total-hhmm" class="text-sm text-slate-300 font-mono">(0h00)</span>
+              </div>
             </div>
-            <div class="flex space-x-6 text-xs">
-              <div>Repas Midi : <strong id="driver-month-midi-count" class="text-blue-400 font-bold">0</strong></div>
-              <div>Repas Soir : <strong id="driver-month-soir-count" class="text-blue-400 font-bold">0</strong></div>
+            <div class="flex space-x-6 text-xs bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+              <div>Repas Midi : <strong id="driver-month-midi-count" class="text-blue-400 font-bold text-sm">0</strong></div>
+              <div>Repas Soir : <strong id="driver-month-soir-count" class="text-blue-400 font-bold text-sm">0</strong></div>
             </div>
           </div>
 
@@ -168,13 +183,13 @@
           <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-6">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-200 dark:border-slate-800 pb-4 gap-4">
               <div>
-                <h2 class="text-lg font-bold text-slate-900 dark:text-white">Espace Gestionnaire</h2>
-                <p class="text-xs text-slate-500">Supervision des plannings et édition des rapports de paie</p>
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white">Espace Gestionnaire</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Supervision des plannings et édition des rapports de paie</p>
               </div>
               <div class="flex flex-wrap gap-2">
-                <button id="btn-tab-summary" onclick="showTab('tab-summary')" class="px-4 py-2 bg-blue-600 text-white font-semibold text-xs rounded-xl shadow-sm transition">Rapports & Exports PDF</button>
-                <button id="btn-tab-drivers" onclick="showTab('tab-drivers')" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs rounded-xl hover:bg-slate-200 transition">Gestion Chauffeurs</button>
-                <button onclick="openManagerPinModal()" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs rounded-xl hover:bg-slate-200 transition">🔑 Mon PIN</button>
+                <button id="btn-tab-summary" onclick="showTab('tab-summary')" class="px-4 py-2.5 bg-blue-600 text-white font-semibold text-xs rounded-xl shadow-sm transition">Rapports & Exports PDF</button>
+                <button id="btn-tab-drivers" onclick="showTab('tab-drivers')" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition">Gestion Chauffeurs</button>
+                <button onclick="openManagerPinModal()" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition">🔑 Mon PIN</button>
               </div>
             </div>
 
@@ -183,26 +198,27 @@
               <div class="grid grid-cols-1 md:grid-cols-5 gap-3 bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
                 <div>
                   <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Chauffeur</label>
-                  <select id="manager-select-driver" onchange="loadManagerData()" class="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 text-xs font-semibold"></select>
+                  <select id="manager-select-driver" onchange="loadManagerData()" class="w-full p-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 dark:text-white text-xs font-semibold"></select>
                 </div>
                 <div>
                   <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Période</label>
-                  <input type="month" id="manager-month-picker" onchange="loadManagerData()" class="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 text-xs font-semibold">
+                  <input type="month" id="manager-month-picker" onchange="loadManagerData()" class="w-full p-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 dark:text-white text-xs font-semibold">
                 </div>
                 <div>
                   <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Taux Midi (€)</label>
-                  <input type="number" id="meal-midi-rate" value="15.00" step="0.5" onchange="loadManagerData()" class="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 text-xs font-semibold">
+                  <input type="number" id="meal-midi-rate" value="15.00" step="0.5" onchange="loadManagerData()" class="w-full p-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 dark:text-white text-xs font-semibold">
                 </div>
                 <div>
                   <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Taux Soir (€)</label>
-                  <input type="number" id="meal-soir-rate" value="18.00" step="0.5" onchange="loadManagerData()" class="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 text-xs font-semibold">
+                  <input type="number" id="meal-soir-rate" value="18.00" step="0.5" onchange="loadManagerData()" class="w-full p-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 dark:text-white text-xs font-semibold">
                 </div>
                 <div class="flex items-end">
-                  <button onclick="exportToPDF()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold p-2 border rounded-xl shadow-sm text-xs transition">📄 Imprimer PDF (1 Page)</button>
+                  <button onclick="exportToPDF()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold p-2.5 border border-transparent rounded-xl shadow-sm text-xs transition flex items-center justify-center gap-1">📄 Imprimer PDF (1 Page)</button>
                 </div>
               </div>
 
-              <div id="printable-area" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <!-- Zone Rapport Imprimable corrigée pour le mode sombre -->
+              <div id="printable-area" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
                 <div id="manager-report-content"></div>
               </div>
             </div>
@@ -212,28 +228,28 @@
               <div class="bg-slate-50 dark:bg-slate-950 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-4">
                 <h3 class="font-bold text-slate-900 dark:text-white text-sm">Ajouter un Chauffeur</h3>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-                  <input type="text" id="new-driver-name" placeholder="Nom Prénom *" class="p-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-xs bg-white dark:bg-slate-900">
-                  <input type="text" id="new-driver-matricule" placeholder="Matricule" class="p-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-xs bg-white dark:bg-slate-900">
-                  <input type="text" id="new-driver-plate" placeholder="Immatriculation" class="p-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-xs bg-white dark:bg-slate-900">
-                  <input type="password" id="new-driver-pin" maxlength="6" placeholder="Code PIN (ex: 1234)" class="p-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-mono bg-white dark:bg-slate-900">
+                  <input type="text" id="new-driver-name" placeholder="Nom Prénom *" class="p-3 border border-slate-200 dark:border-slate-800 rounded-xl text-xs bg-white dark:bg-slate-900 dark:text-white">
+                  <input type="text" id="new-driver-matricule" placeholder="Matricule" class="p-3 border border-slate-200 dark:border-slate-800 rounded-xl text-xs bg-white dark:bg-slate-900 dark:text-white">
+                  <input type="text" id="new-driver-plate" placeholder="Immatriculation" class="p-3 border border-slate-200 dark:border-slate-800 rounded-xl text-xs bg-white dark:bg-slate-900 dark:text-white">
+                  <input type="password" id="new-driver-pin" maxlength="6" placeholder="Code PIN (ex: 1234)" class="p-3 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-mono bg-white dark:bg-slate-900 dark:text-white">
                 </div>
-                <button onclick="saveDriver()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-semibold text-xs shadow-sm transition">Ajouter le Chauffeur</button>
+                <button onclick="saveDriver()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-semibold text-xs shadow-sm transition">Ajouter le Chauffeur</button>
               </div>
 
               <div class="flex justify-between items-center gap-4">
-                <input type="text" id="search-driver-input" onkeyup="renderDriversList()" placeholder="🔍 Rechercher un chauffeur..." class="p-2 border border-slate-200 dark:border-slate-800 rounded-xl text-xs w-full md:w-64 bg-slate-50 dark:bg-slate-950">
+                <input type="text" id="search-driver-input" onkeyup="renderDriversList()" placeholder="🔍 Rechercher un chauffeur..." class="p-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-xs w-full md:w-64 bg-slate-50 dark:bg-slate-950 dark:text-white">
                 <span id="driver-count-badge" class="text-xs text-slate-500 font-semibold">0 chauffeur(s)</span>
               </div>
 
               <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
                 <table class="w-full text-left border-collapse bg-white dark:bg-slate-900 text-xs">
                   <thead>
-                    <tr class="bg-slate-50 dark:bg-slate-950 text-slate-500 uppercase font-bold border-b border-slate-200 dark:border-slate-800">
-                      <th class="p-3">Nom</th>
-                      <th class="p-3">Matricule</th>
-                      <th class="p-3">Immatriculation</th>
-                      <th class="p-3">Code PIN</th>
-                      <th class="p-3 text-right">Actions</th>
+                    <tr class="bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 uppercase font-bold border-b border-slate-200 dark:border-slate-800">
+                      <th class="p-3.5">Nom</th>
+                      <th class="p-3.5">Matricule</th>
+                      <th class="p-3.5">Immatriculation</th>
+                      <th class="p-3.5">Code PIN</th>
+                      <th class="p-3.5 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody id="drivers-list-table" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
@@ -260,8 +276,8 @@
               <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-3">
                 <h3 class="font-bold text-xs uppercase text-slate-700 dark:text-slate-300">Ajouter un Gestionnaire</h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-                  <input type="text" id="admin-new-manager-name" placeholder="Nom du Gestionnaire *" class="p-2 border rounded-lg text-xs dark:bg-slate-900 dark:border-slate-800">
-                  <input type="password" id="admin-new-manager-pin" placeholder="Code PIN (ex: 2157)" maxlength="6" class="p-2 border rounded-lg text-xs font-mono dark:bg-slate-900 dark:border-slate-800">
+                  <input type="text" id="admin-new-manager-name" placeholder="Nom du Gestionnaire *" class="p-2 border rounded-lg text-xs dark:bg-slate-900 dark:border-slate-800 dark:text-white">
+                  <input type="password" id="admin-new-manager-pin" placeholder="Code PIN (ex: 2157)" maxlength="6" class="p-2 border rounded-lg text-xs font-mono dark:bg-slate-900 dark:border-slate-800 dark:text-white">
                   <button onclick="adminAddManager()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-2 rounded-lg text-xs transition">Créer Gestionnaire</button>
                 </div>
               </div>
@@ -270,7 +286,7 @@
               <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
                 <table class="w-full text-left border-collapse bg-white dark:bg-slate-900 text-xs">
                   <thead>
-                    <tr class="bg-slate-50 dark:bg-slate-950 text-slate-500 uppercase font-bold border-b">
+                    <tr class="bg-slate-50 dark:bg-slate-950 text-slate-500 uppercase font-bold border-b border-slate-200 dark:border-slate-800">
                       <th class="p-3">Gestionnaire</th>
                       <th class="p-3">Nouveau PIN</th>
                       <th class="p-3 text-right">Actions</th>
@@ -287,7 +303,7 @@
               <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
                 <table class="w-full text-left border-collapse bg-white dark:bg-slate-900 text-xs">
                   <thead>
-                    <tr class="bg-slate-50 dark:bg-slate-950 text-slate-500 uppercase font-bold border-b">
+                    <tr class="bg-slate-50 dark:bg-slate-950 text-slate-500 uppercase font-bold border-b border-slate-200 dark:border-slate-800">
                       <th class="p-3">Chauffeur</th>
                       <th class="p-3">Matricule</th>
                       <th class="p-3">Nouveau PIN</th>
@@ -306,10 +322,10 @@
     </main>
   </div>
 
-  <!-- PIED DE PAGE AVEC MENTION EXACTE DU CRÉATEUR -->
+  <!-- PIED DE PAGE -->
   <footer class="max-w-6xl mx-auto px-4 w-full mt-12 text-center text-xs text-slate-400 flex justify-between items-center border-t border-slate-200 dark:border-slate-800 pt-6">
-    <p>Édité par Maxence HURTADO</p>
-    <button onclick="openAdminPrompt()" class="opacity-20 hover:opacity-100 transition text-[10px] font-mono text-slate-500 dark:text-slate-400 px-2 py-1 rounded bg-slate-200 dark:bg-slate-800">⚙️ Admin</button>
+    <p class="font-medium text-slate-500 dark:text-slate-400">Édité par Maxence HURTADO</p>
+    <button onclick="openAdminPrompt()" class="opacity-30 hover:opacity-100 transition text-[10px] font-mono text-slate-500 dark:text-slate-400 px-2.5 py-1 rounded-lg bg-slate-200 dark:bg-slate-800">⚙️ Admin</button>
   </footer>
 
   <!-- MODAL PIN CHAUFFEUR -->
@@ -319,7 +335,7 @@
       <div>
         <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Nouveau Code PIN</label>
         <div class="relative">
-          <input type="password" id="new-pin-input" maxlength="6" inputmode="numeric" placeholder="••••" class="w-full p-3 pr-10 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-white rounded-xl text-center text-lg font-mono">
+          <input type="password" id="new-pin-input" maxlength="6" inputmode="numeric" placeholder="••••" class="w-full p-3 pr-10 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white rounded-xl text-center text-lg font-mono">
           <button type="button" onclick="togglePasswordVisibility('new-pin-input', 'eye-modal-driver')" class="absolute right-3.5 top-3 text-slate-400 text-xs">
             <span id="eye-modal-driver">👁️‍🗨️</span>
           </button>
@@ -339,7 +355,7 @@
       <div>
         <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Nouveau Code PIN</label>
         <div class="relative">
-          <input type="password" id="new-manager-pin-input" maxlength="6" inputmode="numeric" placeholder="••••" class="w-full p-3 pr-10 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-white rounded-xl text-center text-lg font-mono">
+          <input type="password" id="new-manager-pin-input" maxlength="6" inputmode="numeric" placeholder="••••" class="w-full p-3 pr-10 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white rounded-xl text-center text-lg font-mono">
           <button type="button" onclick="togglePasswordVisibility('new-manager-pin-input', 'eye-modal-manager')" class="absolute right-3.5 top-3 text-slate-400 text-xs">
             <span id="eye-modal-manager">👁️‍🗨️</span>
           </button>
@@ -385,7 +401,7 @@
     function updateLiveDateTime() {
       const now = new Date();
       const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-      const el = document.getElementById('live-datetime');
+      const el = document.getElementById('live-datetime-text');
       if(el) el.innerText = now.toLocaleDateString('fr-FR', options);
     }
 
@@ -410,15 +426,15 @@
       const subtitle = document.getElementById('login-subtitle');
 
       if (role === 'driver') {
-        btnDriver.className = "w-1/2 py-2.5 text-xs font-bold rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm transition";
-        btnManager.className = "w-1/2 py-2.5 text-xs font-bold rounded-lg text-slate-500 hover:text-slate-900 transition";
+        btnDriver.className = "w-1/2 py-2.5 text-xs font-bold rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm transition flex items-center justify-center gap-1.5";
+        btnManager.className = "w-1/2 py-2.5 text-xs font-bold rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition flex items-center justify-center gap-1.5";
         formDriver.classList.remove('hidden');
         formManager.classList.add('hidden');
         title.innerText = "Connexion Chauffeur";
         subtitle.innerText = "Sélectionnez votre profil et entrez votre code PIN";
       } else {
-        btnManager.className = "w-1/2 py-2.5 text-xs font-bold rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm transition";
-        btnDriver.className = "w-1/2 py-2.5 text-xs font-bold rounded-lg text-slate-500 hover:text-slate-900 transition";
+        btnManager.className = "w-1/2 py-2.5 text-xs font-bold rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm transition flex items-center justify-center gap-1.5";
+        btnDriver.className = "w-1/2 py-2.5 text-xs font-bold rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition flex items-center justify-center gap-1.5";
         formManager.classList.remove('hidden');
         formDriver.classList.add('hidden');
         title.innerText = "Connexion Gestionnaire";
@@ -619,12 +635,12 @@
       filtered.forEach(d => {
         tbody.innerHTML += `
           <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-            <td class="p-3 font-bold text-slate-900 dark:text-white">${d.name}</td>
-            <td class="p-3 text-slate-500">${d.matricule || '-'}</td>
-            <td class="p-3 text-slate-500">${d.plate || '-'}</td>
-            <td class="p-3 font-mono text-slate-400">••••••</td>
-            <td class="p-3 text-right">
-              <button onclick="deleteDriver('${d.id}')" class="bg-rose-50 text-rose-700 hover:bg-rose-100 dark:bg-rose-950/50 dark:text-rose-400 px-2.5 py-1 rounded font-semibold text-xs transition">Supprimer</button>
+            <td class="p-3.5 font-bold text-slate-900 dark:text-white">${d.name}</td>
+            <td class="p-3.5 text-slate-500 dark:text-slate-400">${d.matricule || '-'}</td>
+            <td class="p-3.5 text-slate-500 dark:text-slate-400">${d.plate || '-'}</td>
+            <td class="p-3.5 font-mono text-slate-400">••••••</td>
+            <td class="p-3.5 text-right">
+              <button onclick="deleteDriver('${d.id}')" class="bg-rose-50 text-rose-700 hover:bg-rose-100 dark:bg-rose-950/50 dark:text-rose-400 px-3 py-1.5 rounded-lg font-semibold text-xs transition">Supprimer</button>
             </td>
           </tr>
         `;
@@ -679,7 +695,7 @@
             <tr>
               <td class="p-3 font-bold text-slate-900 dark:text-white">${m.name}</td>
               <td class="p-3">
-                <input type="text" id="admin_mgr_pin_${m.id}" placeholder="Nouveau PIN" maxlength="6" class="p-1.5 border dark:border-slate-800 bg-slate-50 dark:bg-slate-950 rounded text-center font-mono w-28">
+                <input type="text" id="admin_mgr_pin_${m.id}" placeholder="Nouveau PIN" maxlength="6" class="p-1.5 border dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white rounded text-center font-mono w-28">
               </td>
               <td class="p-3 text-right space-x-1">
                 <button onclick="adminResetManagerPin('${m.id}')" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1.5 rounded font-semibold transition">Valider</button>
@@ -698,9 +714,9 @@
         tbody.innerHTML += `
           <tr>
             <td class="p-3 font-bold text-slate-900 dark:text-white">${d.name}</td>
-            <td class="p-3 text-slate-500">${d.matricule || '-'}</td>
+            <td class="p-3 text-slate-500 dark:text-slate-400">${d.matricule || '-'}</td>
             <td class="p-3">
-              <input type="text" id="admin_pin_${d.id}" placeholder="Nouveau PIN" maxlength="6" class="p-1.5 border dark:border-slate-800 bg-slate-50 dark:bg-slate-950 rounded text-center font-mono w-28">
+              <input type="text" id="admin_pin_${d.id}" placeholder="Nouveau PIN" maxlength="6" class="p-1.5 border dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white rounded text-center font-mono w-28">
             </td>
             <td class="p-3 text-right">
               <button onclick="adminResetDriverPin('${d.id}')" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1.5 rounded font-semibold transition">Valider</button>
@@ -732,11 +748,11 @@
       const btnS = document.getElementById('btn-tab-summary');
 
       if (tabId === 'tab-drivers') {
-        btnD.className = "px-4 py-2 bg-blue-600 text-white font-semibold text-xs rounded-xl shadow-sm transition";
-        btnS.className = "px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs rounded-xl hover:bg-slate-200 transition";
+        btnD.className = "px-4 py-2.5 bg-blue-600 text-white font-semibold text-xs rounded-xl shadow-sm transition";
+        btnS.className = "px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition";
       } else {
-        btnS.className = "px-4 py-2 bg-blue-600 text-white font-semibold text-xs rounded-xl shadow-sm transition";
-        btnD.className = "px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs rounded-xl hover:bg-slate-200 transition";
+        btnS.className = "px-4 py-2.5 bg-blue-600 text-white font-semibold text-xs rounded-xl shadow-sm transition";
+        btnD.className = "px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition";
       }
     }
 
@@ -787,37 +803,37 @@
         if (entry.repasSoir) { weekSoirSum++; monthSoirSum++; }
 
         currentWeekHtml += `
-          <div class="p-3.5 bg-white dark:bg-slate-900 rounded-xl border ${isToday ? 'border-blue-500 ring-2 ring-blue-500/20 bg-blue-50/10' : 'border-slate-200 dark:border-slate-800'} flex flex-col md:flex-row justify-between items-center gap-3">
-            <div class="w-full md:w-32 flex items-center space-x-2">
+          <div class="p-3.5 bg-white dark:bg-slate-900 rounded-xl border ${isToday ? 'border-blue-500 ring-2 ring-blue-500/20 bg-blue-50/20 dark:bg-blue-950/30' : 'border-slate-200 dark:border-slate-800'} flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="w-full md:w-36 flex items-center space-x-2">
               <span class="font-bold text-slate-900 dark:text-white capitalize text-sm">${dayName} ${day}</span>
-              ${isToday ? '<span class="bg-blue-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase">Aujourd\'hui</span>' : ''}
+              ${isToday ? '<span class="bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Aujourd\'hui</span>' : ''}
             </div>
             
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 w-full">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 w-full">
               <div>
-                <label class="text-[10px] text-slate-400 font-bold block uppercase">Matin (c)</label>
-                <input type="number" step="0.01" value="${entry.matin}" onchange="updateEntry('${dateStr}', 'matin', this.value)" placeholder="0.00" class="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg text-sm bg-slate-50 dark:bg-slate-950 font-semibold">
+                <label class="text-xs text-slate-500 dark:text-slate-400 font-bold block uppercase mb-1">Matin (c)</label>
+                <input type="number" step="0.01" value="${entry.matin}" onchange="updateEntry('${dateStr}', 'matin', this.value)" placeholder="0.00" class="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg text-sm bg-slate-50 dark:bg-slate-950 dark:text-white font-semibold">
               </div>
 
-              <div class="flex items-center space-x-2 pt-3">
+              <div class="flex items-center space-x-2 pt-4">
                 <input type="checkbox" id="midi_${dateStr}" ${entry.repasMidi ? 'checked' : ''} onchange="updateEntry('${dateStr}', 'repasMidi', this.checked)" class="w-4 h-4 text-blue-600 rounded">
                 <label for="midi_${dateStr}" class="text-xs font-semibold text-slate-700 dark:text-slate-300">Repas Midi</label>
               </div>
 
               <div>
-                <label class="text-[10px] text-slate-400 font-bold block uppercase">A.-Midi (c)</label>
-                <input type="number" step="0.01" value="${entry.apresMidi}" onchange="updateEntry('${dateStr}', 'apresMidi', this.value)" placeholder="0.00" class="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg text-sm bg-slate-50 dark:bg-slate-950 font-semibold">
+                <label class="text-xs text-slate-500 dark:text-slate-400 font-bold block uppercase mb-1">A.-Midi (c)</label>
+                <input type="number" step="0.01" value="${entry.apresMidi}" onchange="updateEntry('${dateStr}', 'apresMidi', this.value)" placeholder="0.00" class="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg text-sm bg-slate-50 dark:bg-slate-950 dark:text-white font-semibold">
               </div>
 
-              <div class="flex items-center space-x-2 pt-3">
+              <div class="flex items-center space-x-2 pt-4">
                 <input type="checkbox" id="soir_${dateStr}" ${entry.repasSoir ? 'checked' : ''} onchange="updateEntry('${dateStr}', 'repasSoir', this.checked)" class="w-4 h-4 text-blue-600 rounded">
                 <label for="soir_${dateStr}" class="text-xs font-semibold text-slate-700 dark:text-slate-300">Repas Soir</label>
               </div>
             </div>
 
-            <div class="w-full md:w-36 text-right border-t md:border-t-0 pt-2 md:pt-0">
-              <span class="text-[10px] text-slate-400 font-bold uppercase block">Total Jour</span>
-              <span class="font-bold text-blue-600 text-sm">${totalCent} c</span>
+            <div class="w-full md:w-36 text-right border-t md:border-t-0 pt-2 md:pt-0 border-slate-100 dark:border-slate-800">
+              <span class="text-xs text-slate-400 font-bold uppercase block">Total Jour</span>
+              <span class="font-bold text-blue-600 dark:text-blue-400 text-sm">${totalCent} c</span>
               <span class="text-xs text-slate-500 font-mono block">(${centToHHMM(totalCent)})</span>
             </div>
           </div>
@@ -825,9 +841,9 @@
 
         if (dateObj.getDay() === 0 || day === daysInMonth) {
           grid.innerHTML += `
-            <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl space-y-3 border border-slate-200 dark:border-slate-800">
+            <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl space-y-3 border border-slate-200 dark:border-slate-800">
               ${currentWeekHtml}
-              <div class="bg-slate-900 text-white p-3 rounded-xl flex flex-col md:flex-row justify-between items-center text-xs font-bold gap-2">
+              <div class="bg-slate-900 text-white p-3.5 rounded-xl flex flex-col md:flex-row justify-between items-center text-xs font-bold gap-2">
                 <span>TOTAL SEMAINE</span>
                 <div class="flex space-x-4">
                   <span>Midi: <strong class="text-blue-400">${weekMidiSum}</strong></span>
@@ -891,7 +907,7 @@
 
       const driver = state.drivers.find(d => d.id === driverId);
       if (!driver) {
-        reportEl.innerHTML = '<p class="text-center text-slate-500 py-8">Veuillez sélectionner un chauffeur.</p>';
+        reportEl.innerHTML = '<p class="text-center text-slate-500 dark:text-slate-400 py-8">Veuillez sélectionner un chauffeur.</p>';
         return;
       }
 
@@ -926,26 +942,26 @@
         if (entry.repasSoir) { totalMonthSoir++; weekSoirSum++; }
 
         rowsHtml += `
-          <tr class="border-b border-slate-200 text-[10px]">
-            <td class="py-1 px-1.5 font-bold">${dateStr}</td>
-            <td class="py-1 px-1.5">${entry.matin || '-'}</td>
-            <td class="py-1 px-1.5 font-bold ${entry.repasMidi ? 'text-blue-600' : ''}">${entry.repasMidi ? 'OUI' : '-'}</td>
-            <td class="py-1 px-1.5">${entry.apresMidi || '-'}</td>
-            <td class="py-1 px-1.5 font-bold ${entry.repasSoir ? 'text-blue-600' : ''}">${entry.repasSoir ? 'OUI' : '-'}</td>
-            <td class="py-1 px-1.5 font-bold">${totalCent} c</td>
-            <td class="py-1 px-1.5 font-mono text-slate-500">${centToHHMM(totalCent)}</td>
+          <tr class="border-b border-slate-200 dark:border-slate-800 text-xs">
+            <td class="py-1.5 px-2 font-bold">${dateStr}</td>
+            <td class="py-1.5 px-2">${entry.matin || '-'}</td>
+            <td class="py-1.5 px-2 font-bold ${entry.repasMidi ? 'text-blue-600 dark:text-blue-400' : ''}">${entry.repasMidi ? 'OUI' : '-'}</td>
+            <td class="py-1.5 px-2">${entry.apresMidi || '-'}</td>
+            <td class="py-1.5 px-2 font-bold ${entry.repasSoir ? 'text-blue-600 dark:text-blue-400' : ''}">${entry.repasSoir ? 'OUI' : '-'}</td>
+            <td class="py-1.5 px-2 font-bold">${totalCent} c</td>
+            <td class="py-1.5 px-2 font-mono text-slate-500 dark:text-slate-400">${centToHHMM(totalCent)}</td>
           </tr>
         `;
 
         if (dateObj.getDay() === 0 || day === daysInMonth) {
           rowsHtml += `
-            <tr class="bg-slate-100 font-bold text-[10px] border-b-2 border-slate-300">
-              <td colspan="2" class="py-1 px-1.5 text-slate-700">TOTAL SEMAINE ${weekIndex}</td>
-              <td class="py-1 px-1.5 text-blue-700">${weekMidiSum} midi</td>
+            <tr class="bg-slate-100 dark:bg-slate-800/80 font-bold text-xs border-b-2 border-slate-300 dark:border-slate-700">
+              <td colspan="2" class="py-1.5 px-2 text-slate-700 dark:text-slate-300">TOTAL SEMAINE ${weekIndex}</td>
+              <td class="py-1.5 px-2 text-blue-700 dark:text-blue-400">${weekMidiSum} midi</td>
               <td></td>
-              <td class="py-1 px-1.5 text-blue-700">${weekSoirSum} soir</td>
-              <td class="py-1 px-1.5 text-emerald-700">${weekCentSum.toFixed(2)} c</td>
-              <td class="py-1 px-1.5 font-mono text-emerald-700">${centToHHMM(weekCentSum)}</td>
+              <td class="py-1.5 px-2 text-blue-700 dark:text-blue-400">${weekSoirSum} soir</td>
+              <td class="py-1.5 px-2 text-emerald-700 dark:text-emerald-400">${weekCentSum.toFixed(2)} c</td>
+              <td class="py-1.5 px-2 font-mono text-emerald-700 dark:text-emerald-400">${centToHHMM(weekCentSum)}</td>
             </tr>
           `;
           weekCentSum = 0; weekMidiSum = 0; weekSoirSum = 0; weekIndex++;
@@ -957,52 +973,52 @@
       const totalGlobalRepas = (parseFloat(totalMidiCost) + parseFloat(totalSoirCost)).toFixed(2);
 
       reportEl.innerHTML = `
-        <div class="pdf-compact text-slate-900 bg-white">
-          <div class="flex justify-between items-center border-b pb-2 mb-2">
+        <div class="pdf-compact">
+          <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3 mb-3">
             <div>
-              <h2 class="text-sm font-black tracking-tight text-slate-900">RELEVÉ MENSUEL des heures et repas</h2>
-              <p class="text-[9px] text-slate-500">Édité le ${todayDateStr}</p>
+              <h2 class="text-base font-black tracking-tight text-slate-900 dark:text-white">RELEVÉ MENSUEL des heures et repas</h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Édité le ${todayDateStr}</p>
             </div>
-            <div class="text-right text-[9px] space-y-0.5">
+            <div class="text-right text-xs space-y-0.5 text-slate-700 dark:text-slate-300">
               <p><strong>Période :</strong> ${yearMonth}</p>
               <p><strong>Chauffeur :</strong> ${driver.name}</p>
               <p><strong>Matricule :</strong> ${driver.matricule || 'N/A'} | <strong>Immat :</strong> ${driver.plate || 'N/A'}</p>
             </div>
           </div>
 
-          <table class="w-full text-left border-collapse mb-2">
+          <table class="w-full text-left border-collapse mb-3">
             <thead>
-              <tr class="bg-slate-100 text-[9px] uppercase font-bold text-slate-600 border-b">
-                <th class="py-1 px-1.5">Date</th>
-                <th class="py-1 px-1.5">Matin</th>
-                <th class="py-1 px-1.5">Midi</th>
-                <th class="py-1 px-1.5">A.-Midi</th>
-                <th class="py-1 px-1.5">Soir</th>
-                <th class="py-1 px-1.5">Total Jour</th>
-                <th class="py-1 px-1.5">HH:MM</th>
+              <tr class="bg-slate-100 dark:bg-slate-950 text-xs uppercase font-bold text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
+                <th class="py-1.5 px-2">Date</th>
+                <th class="py-1.5 px-2">Matin</th>
+                <th class="py-1.5 px-2">Midi</th>
+                <th class="py-1.5 px-2">A.-Midi</th>
+                <th class="py-1.5 px-2">Soir</th>
+                <th class="py-1.5 px-2">Total Jour</th>
+                <th class="py-1.5 px-2">HH:MM</th>
               </tr>
             </thead>
             <tbody>${rowsHtml}</tbody>
           </table>
 
-          <div class="grid grid-cols-2 gap-2 mb-3">
-            <div class="bg-slate-50 p-2 rounded border border-slate-200">
-              <p class="text-[9px] text-slate-500 font-bold uppercase">BILAN HEURES MOIS</p>
-              <p class="text-sm font-black text-slate-900">${totalMonthCent.toFixed(2)} c</p>
-              <p class="text-[9px] text-blue-600 font-mono font-bold">Équivalent : ${centToHHMM(totalMonthCent)}</p>
+          <div class="grid grid-cols-2 gap-3 mb-3">
+            <div class="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+              <p class="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase">BILAN HEURES MOIS</p>
+              <p class="text-base font-black text-slate-900 dark:text-white">${totalMonthCent.toFixed(2)} c</p>
+              <p class="text-xs text-blue-600 dark:text-blue-400 font-mono font-bold">Équivalent : ${centToHHMM(totalMonthCent)}</p>
             </div>
 
-            <div class="bg-slate-50 p-2 rounded border border-slate-200">
-              <p class="text-[9px] text-slate-500 font-bold uppercase">BILAN REPAS MOIS</p>
-              <div class="text-[9px] space-y-0.5">
+            <div class="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+              <p class="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase">BILAN REPAS MOIS</p>
+              <div class="text-xs space-y-0.5 text-slate-700 dark:text-slate-300">
                 <p>• Repas Midi : <strong>${totalMonthMidi}</strong> x ${rateMidi.toFixed(2)} € = <strong>${totalMidiCost} €</strong></p>
                 <p>• Repas Soir : <strong>${totalMonthSoir}</strong> x ${rateSoir.toFixed(2)} € = <strong>${totalSoirCost} €</strong></p>
-                <p class="text-[10px] font-bold text-emerald-700 border-t pt-0.5">Total Repas : ${totalGlobalRepas} €</p>
+                <p class="text-xs font-bold text-emerald-700 dark:text-emerald-400 border-t border-slate-200 dark:border-slate-800 pt-1">Total Repas : ${totalGlobalRepas} €</p>
               </div>
             </div>
           </div>
 
-          <div class="flex justify-between items-center text-[9px] text-slate-500 border-t pt-2">
+          <div class="flex justify-between items-center text-xs text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800 pt-3">
             <div>Signature Chauffeur :</div>
             <div>Signature Responsable :</div>
           </div>
@@ -1012,6 +1028,11 @@
 
     function exportToPDF() {
       const element = document.getElementById('printable-area');
+      
+      // Force temporaire du fond blanc et texte noir pour un PDF propre à l'impression
+      const originalClass = element.className;
+      element.className = "bg-white text-slate-900 rounded-2xl border border-slate-200 shadow-sm overflow-hidden";
+
       const opt = {
         margin:       [0.15, 0.15, 0.15, 0.15],
         filename:     `Releve_Mensuel_${state.currentMonth}.pdf`,
@@ -1019,7 +1040,10 @@
         html2canvas:  { scale: 2, useCORS: true },
         jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
       };
-      html2pdf().set(opt).from(element).save();
+
+      html2pdf().set(opt).from(element).save().then(() => {
+        element.className = originalClass; // Restaure le thème initial
+      });
     }
 
     function changeMonth(delta) {
