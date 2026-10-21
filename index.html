@@ -33,13 +33,19 @@
       #printable-area { position: absolute; left: 0; top: 0; width: 100%; }
       .no-print { display: none !important; }
     }
-    .pdf-compact {
+    .pdf-container {
       width: 100%;
       max-width: 800px;
       margin: 0 auto;
-      padding: 16px;
+      padding: 20px;
       font-size: 11px;
-      line-height: 1.35;
+      line-height: 1.4;
+    }
+    .page-break {
+      page-break-before: always;
+      margin-top: 25px;
+      padding-top: 20px;
+      border-top: 2px dashed #cbd5e1;
     }
   </style>
 </head>
@@ -54,15 +60,13 @@
             SP
           </div>
           <div>
-            <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
-              Suivi Pro
-            </h1>
-            <p class="text-xs text-slate-400 font-medium">Gestion des Heures & Indemnités Repas</p>
+            <h1 class="text-lg font-bold tracking-tight text-white">Suivi Pro</h1>
+            <p class="text-xs text-slate-400 font-medium">Gestion d'Heures, Repas & Absences</p>
           </div>
         </div>
         
         <div class="flex items-center space-x-3">
-          <div id="live-datetime" class="hidden md:flex items-center gap-2 text-xs text-slate-300 font-mono bg-slate-800 px-3.5 py-2 rounded-xl border border-slate-700/80 shadow-sm">
+          <div id="live-datetime" class="hidden md:flex items-center gap-2 text-xs text-slate-300 font-mono bg-slate-800 px-3.5 py-2 rounded-xl border border-slate-700 shadow-sm">
             <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             <span id="live-datetime-text"></span>
           </div>
@@ -184,10 +188,10 @@
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-200 dark:border-slate-800 pb-4 gap-4">
               <div>
                 <h2 class="text-xl font-bold text-slate-900 dark:text-white">Espace Gestionnaire</h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Supervision des plannings et édition des rapports de paie</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Supervision des plannings, absences et éditions de paie</p>
               </div>
               <div class="flex flex-wrap gap-2">
-                <button id="btn-tab-summary" onclick="showTab('tab-summary')" class="px-4 py-2.5 bg-blue-600 text-white font-semibold text-xs rounded-xl shadow-sm transition">Rapports & Exports PDF</button>
+                <button id="btn-tab-summary" onclick="showTab('tab-summary')" class="px-4 py-2.5 bg-blue-600 text-white font-semibold text-xs rounded-xl shadow-sm transition">Rapports & Exports</button>
                 <button id="btn-tab-drivers" onclick="showTab('tab-drivers')" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition">Gestion Chauffeurs</button>
                 <button onclick="openManagerPinModal()" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition">🔑 Mon PIN</button>
               </div>
@@ -195,7 +199,7 @@
 
             <!-- ONGLET RAPPORT -->
             <div id="tab-summary" class="space-y-6">
-              <div class="grid grid-cols-1 md:grid-cols-5 gap-3 bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
+              <div class="grid grid-cols-1 md:grid-cols-6 gap-3 bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
                 <div>
                   <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Chauffeur</label>
                   <select id="manager-select-driver" onchange="loadManagerData()" class="w-full p-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 dark:text-white text-xs font-semibold"></select>
@@ -213,11 +217,14 @@
                   <input type="number" id="meal-soir-rate" value="18.00" step="0.5" onchange="loadManagerData()" class="w-full p-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 dark:text-white text-xs font-semibold">
                 </div>
                 <div class="flex items-end">
-                  <button onclick="exportToPDF()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold p-2.5 border border-transparent rounded-xl shadow-sm text-xs transition flex items-center justify-center gap-1">📄 Imprimer PDF (1 Page)</button>
+                  <button onclick="exportToCSV()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold p-2.5 border border-transparent rounded-xl shadow-sm text-xs transition flex items-center justify-center gap-1">📥 Exporter Excel (.csv)</button>
+                </div>
+                <div class="flex items-end">
+                  <button onclick="exportToPDF()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold p-2.5 border border-transparent rounded-xl shadow-sm text-xs transition flex items-center justify-center gap-1">📄 Imprimer PDF (2 Pages)</button>
                 </div>
               </div>
 
-              <!-- Zone Rapport Imprimable corrigée pour le mode sombre -->
+              <!-- Zone Rapport Imprimable -->
               <div id="printable-area" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
                 <div id="manager-report-content"></div>
               </div>
@@ -374,6 +381,15 @@
       MASTER_ADMIN_PIN: "2157"
     };
 
+    const ABSENCE_LABELS = {
+      "WORK": "Service Normal",
+      "CP": "Congé Payé",
+      "RTT": "Jour RTT",
+      "AM": "Arrêt Maladie",
+      "JF": "Jour Férié",
+      "CSS": "Congé Sans Solde"
+    };
+
     let state = {
       currentUser: null,
       managers: JSON.parse(localStorage.getItem('sp_managers')) || [
@@ -473,7 +489,8 @@
                   matin: row.Matin || '',
                   repasMidi: row.RepasMidi === 'OUI',
                   apresMidi: row.ApresMidi || '',
-                  repasSoir: row.RepasSoir === 'OUI'
+                  repasSoir: row.RepasSoir === 'OUI',
+                  absence: row.Absence || 'WORK'
                 };
               }
             });
@@ -647,7 +664,6 @@
       });
     }
 
-    // FONCTIONS ADMIN MASTER
     function adminAddManager() {
       const name = document.getElementById('admin-new-manager-name').value.trim();
       const pin = document.getElementById('admin-new-manager-pin').value.trim();
@@ -790,17 +806,18 @@
         const isToday = (dateStr === todayStr);
 
         const entryKey = `${state.currentUser.id}_${dateStr}`;
-        const entry = state.entries[entryKey] || { matin: '', repasMidi: false, apresMidi: '', repasSoir: false };
+        const entry = state.entries[entryKey] || { matin: '', repasMidi: false, apresMidi: '', repasSoir: false, absence: 'WORK' };
 
-        const matinVal = parseFloat(entry.matin) || 0;
-        const amVal = parseFloat(entry.apresMidi) || 0;
+        const isAbsent = entry.absence && entry.absence !== 'WORK';
+        const matinVal = isAbsent ? 0 : (parseFloat(entry.matin) || 0);
+        const amVal = isAbsent ? 0 : (parseFloat(entry.apresMidi) || 0);
         const totalCent = (matinVal + amVal).toFixed(2);
 
         weekCentSum += parseFloat(totalCent);
         monthCentSum += parseFloat(totalCent);
 
-        if (entry.repasMidi) { weekMidiSum++; monthMidiSum++; }
-        if (entry.repasSoir) { weekSoirSum++; monthSoirSum++; }
+        if (entry.repasMidi && !isAbsent) { weekMidiSum++; monthMidiSum++; }
+        if (entry.repasSoir && !isAbsent) { weekSoirSum++; monthSoirSum++; }
 
         currentWeekHtml += `
           <div class="p-3.5 bg-white dark:bg-slate-900 rounded-xl border ${isToday ? 'border-blue-500 ring-2 ring-blue-500/20 bg-blue-50/20 dark:bg-blue-950/30' : 'border-slate-200 dark:border-slate-800'} flex flex-col md:flex-row justify-between items-center gap-3">
@@ -809,25 +826,37 @@
               ${isToday ? '<span class="bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Aujourd\'hui</span>' : ''}
             </div>
             
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 w-full">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-2 w-full">
+              <div>
+                <label class="text-xs text-slate-500 dark:text-slate-400 font-bold block uppercase mb-1">Motif / Statut</label>
+                <select onchange="updateEntry('${dateStr}', 'absence', this.value)" class="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs bg-slate-50 dark:bg-slate-950 dark:text-white font-semibold">
+                  <option value="WORK" ${entry.absence === 'WORK' ? 'selected' : ''}>Service Normal</option>
+                  <option value="CP" ${entry.absence === 'CP' ? 'selected' : ''}>CP (Congé Payé)</option>
+                  <option value="RTT" ${entry.absence === 'RTT' ? 'selected' : ''}>RTT</option>
+                  <option value="AM" ${entry.absence === 'AM' ? 'selected' : ''}>Maladie</option>
+                  <option value="JF" ${entry.absence === 'JF' ? 'selected' : ''}>Férié</option>
+                  <option value="CSS" ${entry.absence === 'CSS' ? 'selected' : ''}>Sans Solde</option>
+                </select>
+              </div>
+
               <div>
                 <label class="text-xs text-slate-500 dark:text-slate-400 font-bold block uppercase mb-1">Matin (c)</label>
-                <input type="number" step="0.01" value="${entry.matin}" onchange="updateEntry('${dateStr}', 'matin', this.value)" placeholder="0.00" class="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg text-sm bg-slate-50 dark:bg-slate-950 dark:text-white font-semibold">
+                <input type="number" step="0.01" ${isAbsent ? 'disabled' : ''} value="${entry.matin}" onchange="updateEntry('${dateStr}', 'matin', this.value)" placeholder="0.00" class="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg text-sm bg-slate-50 dark:bg-slate-950 dark:text-white font-semibold ${isAbsent ? 'opacity-40 cursor-not-allowed' : ''}">
               </div>
 
               <div class="flex items-center space-x-2 pt-4">
-                <input type="checkbox" id="midi_${dateStr}" ${entry.repasMidi ? 'checked' : ''} onchange="updateEntry('${dateStr}', 'repasMidi', this.checked)" class="w-4 h-4 text-blue-600 rounded">
-                <label for="midi_${dateStr}" class="text-xs font-semibold text-slate-700 dark:text-slate-300">Repas Midi</label>
+                <input type="checkbox" id="midi_${dateStr}" ${isAbsent ? 'disabled' : ''} ${entry.repasMidi ? 'checked' : ''} onchange="updateEntry('${dateStr}', 'repasMidi', this.checked)" class="w-4 h-4 text-blue-600 rounded">
+                <label for="midi_${dateStr}" class="text-xs font-semibold text-slate-700 dark:text-slate-300">Repas M.</label>
               </div>
 
               <div>
                 <label class="text-xs text-slate-500 dark:text-slate-400 font-bold block uppercase mb-1">A.-Midi (c)</label>
-                <input type="number" step="0.01" value="${entry.apresMidi}" onchange="updateEntry('${dateStr}', 'apresMidi', this.value)" placeholder="0.00" class="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg text-sm bg-slate-50 dark:bg-slate-950 dark:text-white font-semibold">
+                <input type="number" step="0.01" ${isAbsent ? 'disabled' : ''} value="${entry.apresMidi}" onchange="updateEntry('${dateStr}', 'apresMidi', this.value)" placeholder="0.00" class="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg text-sm bg-slate-50 dark:bg-slate-950 dark:text-white font-semibold ${isAbsent ? 'opacity-40 cursor-not-allowed' : ''}">
               </div>
 
               <div class="flex items-center space-x-2 pt-4">
-                <input type="checkbox" id="soir_${dateStr}" ${entry.repasSoir ? 'checked' : ''} onchange="updateEntry('${dateStr}', 'repasSoir', this.checked)" class="w-4 h-4 text-blue-600 rounded">
-                <label for="soir_${dateStr}" class="text-xs font-semibold text-slate-700 dark:text-slate-300">Repas Soir</label>
+                <input type="checkbox" id="soir_${dateStr}" ${isAbsent ? 'disabled' : ''} ${entry.repasSoir ? 'checked' : ''} onchange="updateEntry('${dateStr}', 'repasSoir', this.checked)" class="w-4 h-4 text-blue-600 rounded">
+                <label for="soir_${dateStr}" class="text-xs font-semibold text-slate-700 dark:text-slate-300">Repas S.</label>
               </div>
             </div>
 
@@ -867,7 +896,7 @@
     function updateEntry(dateStr, field, val) {
       const entryKey = `${state.currentUser.id}_${dateStr}`;
       if (!state.entries[entryKey]) {
-        state.entries[entryKey] = { matin: '', repasMidi: false, apresMidi: '', repasSoir: false };
+        state.entries[entryKey] = { matin: '', repasMidi: false, apresMidi: '', repasSoir: false, absence: 'WORK' };
       }
       state.entries[entryKey][field] = val;
       saveState();
@@ -876,8 +905,9 @@
     }
 
     function syncToGoogleSheets(dateStr, entryData) {
-      const matinVal = parseFloat(entryData.matin) || 0;
-      const amVal = parseFloat(entryData.apresMidi) || 0;
+      const isAbsent = entryData.absence && entryData.absence !== 'WORK';
+      const matinVal = isAbsent ? 0 : (parseFloat(entryData.matin) || 0);
+      const amVal = isAbsent ? 0 : (parseFloat(entryData.apresMidi) || 0);
       const totalCent = (matinVal + amVal).toFixed(2);
 
       const params = new URLSearchParams({
@@ -890,6 +920,7 @@
         repasMidi: entryData.repasMidi ? 'OUI' : 'NON',
         apresMidi: entryData.apresMidi || '',
         repasSoir: entryData.repasSoir ? 'OUI' : 'NON',
+        absence: entryData.absence || 'WORK',
         totalCent: totalCent,
         totalHHMM: centToHHMM(totalCent)
       });
@@ -919,6 +950,8 @@
       let totalMonthMidi = 0;
       let totalMonthSoir = 0;
       
+      let absenceCounts = { "CP": 0, "RTT": 0, "AM": 0, "JF": 0, "CSS": 0 };
+
       let rowsHtml = '';
       let weekCentSum = 0;
       let weekMidiSum = 0;
@@ -929,39 +962,47 @@
         const dateStr = `${yearMonth}-${day < 10 ? '0' + day : day}`;
         const dateObj = new Date(year, month - 1, day);
         const entryKey = `${driver.id}_${dateStr}`;
-        const entry = state.entries[entryKey] || { matin: '', repasMidi: false, apresMidi: '', repasSoir: false };
+        const entry = state.entries[entryKey] || { matin: '', repasMidi: false, apresMidi: '', repasSoir: false, absence: 'WORK' };
 
-        const matinVal = parseFloat(entry.matin) || 0;
-        const amVal = parseFloat(entry.apresMidi) || 0;
+        const isAbsent = entry.absence && entry.absence !== 'WORK';
+        if (isAbsent && absenceCounts[entry.absence] !== undefined) {
+          absenceCounts[entry.absence]++;
+        }
+
+        const matinVal = isAbsent ? 0 : (parseFloat(entry.matin) || 0);
+        const amVal = isAbsent ? 0 : (parseFloat(entry.apresMidi) || 0);
         const totalCent = (matinVal + amVal).toFixed(2);
 
         totalMonthCent += parseFloat(totalCent);
         weekCentSum += parseFloat(totalCent);
 
-        if (entry.repasMidi) { totalMonthMidi++; weekMidiSum++; }
-        if (entry.repasSoir) { totalMonthSoir++; weekSoirSum++; }
+        if (entry.repasMidi && !isAbsent) { totalMonthMidi++; weekMidiSum++; }
+        if (entry.repasSoir && !isAbsent) { totalMonthSoir++; weekSoirSum++; }
+
+        const absenceTag = isAbsent ? `<span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold text-[10px]">${entry.absence}</span>` : '-';
 
         rowsHtml += `
           <tr class="border-b border-slate-200 dark:border-slate-800 text-xs">
-            <td class="py-1.5 px-2 font-bold">${dateStr}</td>
-            <td class="py-1.5 px-2">${entry.matin || '-'}</td>
-            <td class="py-1.5 px-2 font-bold ${entry.repasMidi ? 'text-blue-600 dark:text-blue-400' : ''}">${entry.repasMidi ? 'OUI' : '-'}</td>
-            <td class="py-1.5 px-2">${entry.apresMidi || '-'}</td>
-            <td class="py-1.5 px-2 font-bold ${entry.repasSoir ? 'text-blue-600 dark:text-blue-400' : ''}">${entry.repasSoir ? 'OUI' : '-'}</td>
-            <td class="py-1.5 px-2 font-bold">${totalCent} c</td>
-            <td class="py-1.5 px-2 font-mono text-slate-500 dark:text-slate-400">${centToHHMM(totalCent)}</td>
+            <td class="py-2 px-2 font-bold">${dateStr}</td>
+            <td class="py-2 px-2">${absenceTag}</td>
+            <td class="py-2 px-2">${isAbsent ? '-' : (entry.matin || '-')}</td>
+            <td class="py-2 px-2 font-bold ${entry.repasMidi && !isAbsent ? 'text-blue-600 dark:text-blue-400' : ''}">${entry.repasMidi && !isAbsent ? 'OUI' : '-'}</td>
+            <td class="py-2 px-2">${isAbsent ? '-' : (entry.apresMidi || '-')}</td>
+            <td class="py-2 px-2 font-bold ${entry.repasSoir && !isAbsent ? 'text-blue-600 dark:text-blue-400' : ''}">${entry.repasSoir && !isAbsent ? 'OUI' : '-'}</td>
+            <td class="py-2 px-2 font-bold">${totalCent} c</td>
+            <td class="py-2 px-2 font-mono text-slate-500 dark:text-slate-400">${centToHHMM(totalCent)}</td>
           </tr>
         `;
 
         if (dateObj.getDay() === 0 || day === daysInMonth) {
           rowsHtml += `
             <tr class="bg-slate-100 dark:bg-slate-800/80 font-bold text-xs border-b-2 border-slate-300 dark:border-slate-700">
-              <td colspan="2" class="py-1.5 px-2 text-slate-700 dark:text-slate-300">TOTAL SEMAINE ${weekIndex}</td>
-              <td class="py-1.5 px-2 text-blue-700 dark:text-blue-400">${weekMidiSum} midi</td>
+              <td colspan="3" class="py-2 px-2 text-slate-700 dark:text-slate-300">TOTAL SEMAINE ${weekIndex}</td>
+              <td class="py-2 px-2 text-blue-700 dark:text-blue-400">${weekMidiSum} midi</td>
               <td></td>
-              <td class="py-1.5 px-2 text-blue-700 dark:text-blue-400">${weekSoirSum} soir</td>
-              <td class="py-1.5 px-2 text-emerald-700 dark:text-emerald-400">${weekCentSum.toFixed(2)} c</td>
-              <td class="py-1.5 px-2 font-mono text-emerald-700 dark:text-emerald-400">${centToHHMM(weekCentSum)}</td>
+              <td class="py-2 px-2 text-blue-700 dark:text-blue-400">${weekSoirSum} soir</td>
+              <td class="py-2 px-2 text-emerald-700 dark:text-emerald-400">${weekCentSum.toFixed(2)} c</td>
+              <td class="py-2 px-2 font-mono text-emerald-700 dark:text-emerald-400">${centToHHMM(weekCentSum)}</td>
             </tr>
           `;
           weekCentSum = 0; weekMidiSum = 0; weekSoirSum = 0; weekIndex++;
@@ -973,11 +1014,12 @@
       const totalGlobalRepas = (parseFloat(totalMidiCost) + parseFloat(totalSoirCost)).toFixed(2);
 
       reportEl.innerHTML = `
-        <div class="pdf-compact">
-          <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3 mb-3">
+        <div class="pdf-container">
+          <!-- PAGE 1 : FEUILLE DE TEMPS ET ABSENCES -->
+          <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3 mb-4">
             <div>
-              <h2 class="text-base font-black tracking-tight text-slate-900 dark:text-white">RELEVÉ MENSUEL des heures et repas</h2>
-              <p class="text-xs text-slate-500 dark:text-slate-400">Édité le ${todayDateStr}</p>
+              <h2 class="text-lg font-black tracking-tight text-slate-900 dark:text-white">RELEVÉ MENSUEL des heures et repas</h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Édité le ${todayDateStr} — Page 1/2 (Planning Quotidien)</p>
             </div>
             <div class="text-right text-xs space-y-0.5 text-slate-700 dark:text-slate-300">
               <p><strong>Période :</strong> ${yearMonth}</p>
@@ -986,55 +1028,145 @@
             </div>
           </div>
 
-          <table class="w-full text-left border-collapse mb-3">
+          <table class="w-full text-left border-collapse mb-4">
             <thead>
               <tr class="bg-slate-100 dark:bg-slate-950 text-xs uppercase font-bold text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
-                <th class="py-1.5 px-2">Date</th>
-                <th class="py-1.5 px-2">Matin</th>
-                <th class="py-1.5 px-2">Midi</th>
-                <th class="py-1.5 px-2">A.-Midi</th>
-                <th class="py-1.5 px-2">Soir</th>
-                <th class="py-1.5 px-2">Total Jour</th>
-                <th class="py-1.5 px-2">HH:MM</th>
+                <th class="py-2 px-2">Date</th>
+                <th class="py-2 px-2">Statut</th>
+                <th class="py-2 px-2">Matin</th>
+                <th class="py-2 px-2">Midi</th>
+                <th class="py-2 px-2">A.-Midi</th>
+                <th class="py-2 px-2">Soir</th>
+                <th class="py-2 px-2">Total Jour</th>
+                <th class="py-2 px-2">HH:MM</th>
               </tr>
             </thead>
             <tbody>${rowsHtml}</tbody>
           </table>
 
-          <div class="grid grid-cols-2 gap-3 mb-3">
-            <div class="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
-              <p class="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase">BILAN HEURES MOIS</p>
-              <p class="text-base font-black text-slate-900 dark:text-white">${totalMonthCent.toFixed(2)} c</p>
-              <p class="text-xs text-blue-600 dark:text-blue-400 font-mono font-bold">Équivalent : ${centToHHMM(totalMonthCent)}</p>
-            </div>
-
-            <div class="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
-              <p class="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase">BILAN REPAS MOIS</p>
-              <div class="text-xs space-y-0.5 text-slate-700 dark:text-slate-300">
-                <p>• Repas Midi : <strong>${totalMonthMidi}</strong> x ${rateMidi.toFixed(2)} € = <strong>${totalMidiCost} €</strong></p>
-                <p>• Repas Soir : <strong>${totalMonthSoir}</strong> x ${rateSoir.toFixed(2)} € = <strong>${totalSoirCost} €</strong></p>
-                <p class="text-xs font-bold text-emerald-700 dark:text-emerald-400 border-t border-slate-200 dark:border-slate-800 pt-1">Total Repas : ${totalGlobalRepas} €</p>
+          <!-- PAGE 2 : SYNTHÈSE COMPTABLE ET VALIDATION -->
+          <div class="page-break">
+            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3 mb-4">
+              <div>
+                <h2 class="text-lg font-black tracking-tight text-slate-900 dark:text-white">SYNTHÈSE COMPTABLE & DÉCOMPTE DE PAIE</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Édité le ${todayDateStr} — Page 2/2 (Récapitulatif Bilan)</p>
+              </div>
+              <div class="text-right text-xs text-slate-700 dark:text-slate-300">
+                <p><strong>Chauffeur :</strong> ${driver.name}</p>
               </div>
             </div>
-          </div>
 
-          <div class="flex justify-between items-center text-xs text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800 pt-3">
-            <div>Signature Chauffeur :</div>
-            <div>Signature Responsable :</div>
+            <div class="grid grid-cols-2 gap-4 mb-6">
+              <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2">
+                <h3 class="text-xs font-black uppercase text-slate-500 border-b pb-1">Bilan Général Heures</h3>
+                <div class="flex justify-between items-center pt-1">
+                  <span class="text-xs">Heures Travaillées :</span>
+                  <span class="text-sm font-black text-blue-600">${totalMonthCent.toFixed(2)} c</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-xs">Équivalent Heures/Min :</span>
+                  <span class="text-xs font-mono font-bold">${centToHHMM(totalMonthCent)}</span>
+                </div>
+              </div>
+
+              <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2">
+                <h3 class="text-xs font-black uppercase text-slate-500 border-b pb-1">Bilan Indemnités Repas</h3>
+                <div class="flex justify-between text-xs">
+                  <span>• Repas Midi (${totalMonthMidi} x ${rateMidi.toFixed(2)} €) :</span>
+                  <strong>${totalMidiCost} €</strong>
+                </div>
+                <div class="flex justify-between text-xs">
+                  <span>• Repas Soir (${totalMonthSoir} x ${rateSoir.toFixed(2)} €) :</span>
+                  <strong>${totalSoirCost} €</strong>
+                </div>
+                <div class="flex justify-between items-center text-xs font-bold text-emerald-700 dark:text-emerald-400 border-t pt-1">
+                  <span>Total Indemnités :</span>
+                  <span class="text-sm">${totalGlobalRepas} €</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tableau Décompte des Absences -->
+            <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 mb-6">
+              <h3 class="text-xs font-black uppercase text-slate-500 border-b pb-2 mb-3">Décompte Mensuel des Absences & Congés</h3>
+              <div class="grid grid-cols-5 gap-2 text-center text-xs">
+                <div class="p-2 bg-white dark:bg-slate-900 rounded border">
+                  <span class="block text-[10px] text-slate-400 font-bold uppercase">Congés Payés</span>
+                  <span class="text-base font-black">${absenceCounts["CP"]} j</span>
+                </div>
+                <div class="p-2 bg-white dark:bg-slate-900 rounded border">
+                  <span class="block text-[10px] text-slate-400 font-bold uppercase">RTT</span>
+                  <span class="text-base font-black">${absenceCounts["RTT"]} j</span>
+                </div>
+                <div class="p-2 bg-white dark:bg-slate-900 rounded border">
+                  <span class="block text-[10px] text-slate-400 font-bold uppercase">Maladie</span>
+                  <span class="text-base font-black">${absenceCounts["AM"]} j</span>
+                </div>
+                <div class="p-2 bg-white dark:bg-slate-900 rounded border">
+                  <span class="block text-[10px] text-slate-400 font-bold uppercase">J. Fériés</span>
+                  <span class="text-base font-black">${absenceCounts["JF"]} j</span>
+                </div>
+                <div class="p-2 bg-white dark:bg-slate-900 rounded border">
+                  <span class="block text-[10px] text-slate-400 font-bold uppercase">Sans Solde</span>
+                  <span class="text-base font-black">${absenceCounts["CSS"]} j</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Validation et Remarques -->
+            <div class="border border-slate-200 dark:border-slate-800 p-4 rounded-xl space-y-6">
+              <p class="text-xs text-slate-400">Observations / Remarques :</p>
+              <div class="h-12"></div>
+              <div class="grid grid-cols-2 gap-8 text-xs text-slate-600 dark:text-slate-300 border-t pt-4">
+                <div>Signature Chauffeur (précédée de "Lu et approuvé") :</div>
+                <div class="text-right">Signature Responsable Exploitation :</div>
+              </div>
+            </div>
+
           </div>
         </div>
       `;
     }
 
+    function exportToCSV() {
+      const driverId = document.getElementById('manager-select-driver').value;
+      const yearMonth = document.getElementById('manager-month-picker').value;
+      const driver = state.drivers.find(d => d.id === driverId);
+      if (!driver) return alert("Veuillez sélectionner un chauffeur.");
+
+      const [year, month] = yearMonth.split('-').map(Number);
+      const daysInMonth = new Date(year, month, 0).getDate();
+
+      let csvRows = ["Date;Statut;Matin_Cent;Repas_Midi;ApresMidi_Cent;Repas_Soir;Total_Jour_Cent;Total_Jour_HHMM"];
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${yearMonth}-${day < 10 ? '0' + day : day}`;
+        const entryKey = `${driver.id}_${dateStr}`;
+        const entry = state.entries[entryKey] || { matin: '', repasMidi: false, apresMidi: '', repasSoir: false, absence: 'WORK' };
+
+        const isAbsent = entry.absence && entry.absence !== 'WORK';
+        const matinVal = isAbsent ? 0 : (parseFloat(entry.matin) || 0);
+        const amVal = isAbsent ? 0 : (parseFloat(entry.apresMidi) || 0);
+        const totalCent = (matinVal + amVal).toFixed(2);
+
+        csvRows.push(`${dateStr};${entry.absence || 'WORK'};${entry.matin || 0};${entry.repasMidi ? 'OUI' : 'NON'};${entry.apresMidi || 0};${entry.repasSoir ? 'OUI' : 'NON'};${totalCent};${centToHHMM(totalCent)}`);
+      }
+
+      const blob = new Blob([csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `SuiviPro_${driver.name.replace(/\s+/g, '_')}_${yearMonth}.csv`;
+      link.click();
+    }
+
     function exportToPDF() {
       const element = document.getElementById('printable-area');
       
-      // Force temporaire du fond blanc et texte noir pour un PDF propre à l'impression
       const originalClass = element.className;
       element.className = "bg-white text-slate-900 rounded-2xl border border-slate-200 shadow-sm overflow-hidden";
 
       const opt = {
-        margin:       [0.15, 0.15, 0.15, 0.15],
+        margin:       [0.2, 0.2, 0.2, 0.2],
         filename:     `Releve_Mensuel_${state.currentMonth}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { scale: 2, useCORS: true },
@@ -1042,7 +1174,7 @@
       };
 
       html2pdf().set(opt).from(element).save().then(() => {
-        element.className = originalClass; // Restaure le thème initial
+        element.className = originalClass;
       });
     }
 
