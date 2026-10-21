@@ -71,7 +71,7 @@
           <div>
             <div class="flex items-center gap-2">
               <h1 class="text-base font-extrabold tracking-tight text-white">SUIVI<span class="text-blue-500">PRO</span></h1>
-              <span class="text-[9px] font-mono font-semibold bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded border border-blue-500/20">v2.6</span>
+              <span class="text-[9px] font-mono font-semibold bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded border border-blue-500/20">v2.7</span>
             </div>
             <p class="text-[11px] text-slate-400 font-medium leading-none mt-0.5">Heures, Repas & Absences</p>
           </div>
@@ -417,7 +417,7 @@
       managers: JSON.parse(localStorage.getItem('sp_managers')) || [
         { id: "m1", name: "Gestionnaire Principal", pin: "2157" }
       ],
-      drivers: [],
+      drivers: JSON.parse(localStorage.getItem('sp_drivers')) || [],
       currentMonth: new Date().toISOString().slice(0, 7),
       entries: {}
     };
@@ -492,6 +492,8 @@
       updateLiveDateTime();
       setInterval(updateLiveDateTime, 30000);
       
+      populateDriverSelects();
+      populateManagerSelects();
       fetchOnlineData(false);
     }
 
@@ -500,7 +502,7 @@
       fetch(CONFIG.SCRIPT_URL)
         .then(res => res.json())
         .then(data => {
-          if (data && Array.isArray(data.drivers)) {
+          if (data && Array.isArray(data.drivers) && data.drivers.length > 0) {
             state.drivers = data.drivers.map(d => ({
               id: d.Id || d.id,
               name: d.Name || d.name,
@@ -508,8 +510,6 @@
               plate: d.Plate || d.plate || "",
               pin: d.Pin || d.pin || "0000"
             }));
-          } else {
-            state.drivers = [];
           }
 
           state.entries = {};
@@ -714,27 +714,36 @@
     }
 
     function saveDriver() {
-      const name = document.getElementById('new-driver-name').value.trim();
-      const matricule = document.getElementById('new-driver-matricule').value.trim();
-      const plate = document.getElementById('new-driver-plate').value.trim();
-      const pin = document.getElementById('new-driver-pin').value.trim();
+      const nameInput = document.getElementById('new-driver-name');
+      const matriculeInput = document.getElementById('new-driver-matricule');
+      const plateInput = document.getElementById('new-driver-plate');
+      const pinInput = document.getElementById('new-driver-pin');
+
+      const name = nameInput.value.trim();
+      const matricule = matriculeInput.value.trim();
+      const plate = plateInput.value.trim();
+      const pin = pinInput.value.trim();
 
       if (!name) return alert("Le nom du chauffeur est obligatoire.");
 
-      state.drivers.push({
+      const newDriver = {
         id: 'd_' + Date.now(),
-        name,
-        matricule,
-        plate,
+        name: name,
+        matricule: matricule,
+        plate: plate,
         pin: pin || '0000'
-      });
+      };
+
+      state.drivers.push(newDriver);
       saveState();
       syncDriversToCloud();
 
-      document.getElementById('new-driver-name').value = '';
-      document.getElementById('new-driver-matricule').value = '';
-      document.getElementById('new-driver-plate').value = '';
-      document.getElementById('new-driver-pin').value = '';
+      nameInput.value = '';
+      matriculeInput.value = '';
+      plateInput.value = '';
+      pinInput.value = '';
+
+      alert("Chauffeur ajouté avec succès !");
     }
 
     function deleteDriver(driverId) {
