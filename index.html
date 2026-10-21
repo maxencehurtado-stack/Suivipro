@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Suivi Pro - Version Gestionnaire Avancée</title>
+  <title>Suivi Pro - Gestion d'Heures & Repas</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -37,9 +37,9 @@
       width: 100%;
       max-width: 780px;
       margin: 0 auto;
-      padding: 15px;
+      padding: 16px;
       font-size: 10px;
-      line-height: 1.25;
+      line-height: 1.3;
       box-sizing: border-box;
       background: white;
       color: #0f172a;
@@ -52,32 +52,46 @@
 <body class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen font-sans pb-16 transition-colors duration-200 flex flex-col justify-between">
 
   <div>
-    <!-- EN-TÊTE PRINCIPAL -->
+    <!-- EN-TÊTE PRINCIPAL ET LOGO STYLÉ MINIMALISTE -->
     <header class="bg-slate-900 text-white shadow-md border-b border-slate-800 sticky top-0 z-40">
-      <div class="max-w-6xl mx-auto px-4 py-3.5 flex justify-between items-center">
-        <div class="flex items-center space-x-3">
-          <div class="bg-gradient-to-br from-blue-600 to-indigo-700 text-white p-2.5 rounded-2xl font-black text-lg tracking-wider shadow-inner flex items-center justify-center w-10 h-10">
-            SP
+      <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+        
+        <!-- LOGO BRANDING -->
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="location.reload()">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-sky-400 p-0.5 shadow-lg shadow-blue-500/20 flex items-center justify-center">
+            <div class="w-full h-full bg-slate-900 rounded-[14px] flex items-center justify-center">
+              <!-- SVG Volant + Horloge / Minimaliste -->
+              <svg class="w-5 h-5 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"/>
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M12 15v6"/>
+                <path d="M9.5 9.5L4.2 6.8"/>
+                <path d="M14.5 9.5l5.3-2.7"/>
+              </svg>
+            </div>
           </div>
           <div>
-            <h1 class="text-lg font-bold tracking-tight text-white">Suivi Pro</h1>
-            <p class="text-xs text-slate-400 font-medium">Gestion d'Heures, Repas & Absences</p>
+            <div class="flex items-center gap-2">
+              <h1 class="text-base font-extrabold tracking-tight text-white">SUIVI<span class="text-blue-500">PRO</span></h1>
+              <span class="text-[9px] font-mono font-semibold bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded border border-blue-500/20">v2.0</span>
+            </div>
+            <p class="text-[11px] text-slate-400 font-medium leading-none mt-0.5">Heures, Repas & Absences</p>
           </div>
         </div>
         
         <div class="flex items-center space-x-3">
-          <div id="live-datetime" class="hidden md:flex items-center gap-2 text-xs text-slate-300 font-mono bg-slate-800 px-3.5 py-2 rounded-xl border border-slate-700 shadow-sm">
+          <div id="live-datetime" class="hidden md:flex items-center gap-2 text-xs text-slate-300 font-mono bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700/80">
             <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             <span id="live-datetime-text"></span>
           </div>
 
-          <button onclick="toggleDarkMode()" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition border border-slate-700 flex items-center justify-center" title="Basculer le thème">
+          <button onclick="toggleDarkMode()" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition border border-slate-700 flex items-center justify-center" title="Basculer le thème">
             <span id="theme-icon">🌙</span>
           </button>
 
           <div id="user-status-bar" class="flex items-center space-x-2 text-sm">
-            <span id="current-user-badge" class="bg-slate-800 px-3.5 py-2 rounded-full text-slate-300 border border-slate-700 text-xs font-semibold">Non connecté</span>
-            <button id="logout-btn" onclick="logout()" class="hidden bg-rose-600 hover:bg-rose-700 px-3.5 py-2 rounded-full text-white font-semibold text-xs transition shadow-sm">Déconnexion</button>
+            <span id="current-user-badge" class="bg-slate-800 px-3 py-1.5 rounded-full text-slate-300 border border-slate-700 text-xs font-semibold">Non connecté</span>
+            <button id="logout-btn" onclick="logout()" class="hidden bg-rose-600 hover:bg-rose-700 px-3 py-1.5 rounded-full text-white font-semibold text-xs transition shadow-sm">Déconnexion</button>
           </div>
         </div>
       </div>
@@ -165,7 +179,7 @@
           </div>
 
           <!-- Recapitulatif Mois Chauffeur -->
-          <div id="driver-month-summary-card" class="bg-gradient-to-r from-slate-900 to-indigo-950 text-white p-5 rounded-2xl border border-slate-800 flex flex-wrap justify-between items-center gap-4 shadow-md">
+          <div id="driver-month-summary-card" class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-5 rounded-2xl border border-slate-800 flex flex-wrap justify-between items-center gap-4 shadow-md">
             <div>
               <span class="text-xs text-slate-400 font-bold uppercase block">Bilan Mensuel Global</span>
               <div class="flex items-baseline space-x-2 mt-1">
@@ -188,16 +202,16 @@
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-200 dark:border-slate-800 pb-4 gap-4">
               <div>
                 <h2 class="text-xl font-bold text-slate-900 dark:text-white">Espace Gestionnaire</h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Supervision, modification directe des saisies et exports</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Supervision, modification directe des plannings et édition des rapports de paie</p>
               </div>
               <div class="flex flex-wrap gap-2">
-                <button id="btn-tab-summary" onclick="showTab('tab-summary')" class="px-4 py-2.5 bg-blue-600 text-white font-semibold text-xs rounded-xl shadow-sm transition">Saisies & Rapports</button>
+                <button id="btn-tab-summary" onclick="showTab('tab-summary')" class="px-4 py-2.5 bg-blue-600 text-white font-semibold text-xs rounded-xl shadow-sm transition">Planning & Rapports</button>
                 <button id="btn-tab-drivers" onclick="showTab('tab-drivers')" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition">Gestion Chauffeurs</button>
                 <button onclick="openManagerPinModal()" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition">🔑 Mon PIN</button>
               </div>
             </div>
 
-            <!-- ONGLET SAISIE & RAPPORT -->
+            <!-- ONGLET GESTION DU MOIS (MEME DESIGN QUE CHAUFFEUR) -->
             <div id="tab-summary" class="space-y-6">
               <div class="grid grid-cols-1 md:grid-cols-6 gap-3 bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
                 <div>
@@ -224,35 +238,25 @@
                 </div>
               </div>
 
-              <!-- Cartes de Synthèse Espace Gestionnaire -->
-              <div id="manager-cards-summary" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
-
-              <!-- VRAI TABLEAU DE BORD DE GESTION INTERACTIF (MODIFIABLE PAR LE GESTIONNAIRE) -->
-              <div class="space-y-3">
-                <div class="flex justify-between items-center">
-                  <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">Feuille de Saisie Mensuelle (Modifiable en direct)</h3>
-                  <span class="text-xs text-slate-500">Toute modification est enregistrée automatiquement</span>
+              <!-- CARTE BILAN MOIS GESTIONNAIRE -->
+              <div id="manager-month-summary-card" class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-5 rounded-2xl border border-slate-800 flex flex-wrap justify-between items-center gap-4 shadow-md">
+                <div>
+                  <span class="text-xs text-slate-400 font-bold uppercase block">Bilan Mensuel Chauffeur</span>
+                  <div class="flex items-baseline space-x-2 mt-1">
+                    <span id="manager-month-total-cent" class="text-3xl font-black text-blue-400">0.00 c</span>
+                    <span id="manager-month-total-hhmm" class="text-sm text-slate-300 font-mono">(0h00)</span>
+                  </div>
                 </div>
-                
-                <div class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                  <table class="w-full text-left border-collapse bg-white dark:bg-slate-900 text-xs">
-                    <thead>
-                      <tr class="bg-slate-100 dark:bg-slate-950 text-slate-600 dark:text-slate-400 uppercase font-bold border-b border-slate-200 dark:border-slate-800">
-                        <th class="p-3">Date</th>
-                        <th class="p-3">Motif / Statut</th>
-                        <th class="p-3">Matin (c)</th>
-                        <th class="p-3">Repas Midi</th>
-                        <th class="p-3">A.-Midi (c)</th>
-                        <th class="p-3">Repas Soir</th>
-                        <th class="p-3">Total Jour</th>
-                      </tr>
-                    </thead>
-                    <tbody id="manager-interactive-table" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
-                  </table>
+                <div class="flex space-x-6 text-xs bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+                  <div>Repas Midi : <strong id="manager-month-midi-count" class="text-blue-400 font-bold text-sm">0</strong> (<span id="manager-month-midi-cost">0€</span>)</div>
+                  <div>Repas Soir : <strong id="manager-month-soir-count" class="text-blue-400 font-bold text-sm">0</strong> (<span id="manager-month-soir-cost">0€</span>)</div>
                 </div>
               </div>
 
-              <!-- TEMPLATE CACHÉ POUR GÉNÉRATION PDF RIGIDE DE 2 PAGES EXACTES -->
+              <!-- GRILLE DU MOIS INTERACTIVE GESTIONNAIRE (IDENTIQUE AU DESIGN CHAUFFEUR) -->
+              <div id="manager-month-grid" class="space-y-4"></div>
+
+              <!-- TEMPLATE CACHÉ POUR GÉNÉRATION PDF INSPIRED BY APP (2 PAGES RIGIDES) -->
               <div class="hidden">
                 <div id="printable-pdf-template"></div>
               </div>
@@ -800,6 +804,67 @@
       return `${hours}h${minutes < 10 ? '0' : ''}${minutes}`;
     }
 
+    // GENERATEUR DE BLOCS QUOTIDIENS CARTE (UTILISE POUR CHAUFFEURS & GESTIONNAIRES)
+    function buildDayCardHtml(dateStr, dayName, dayNum, isToday, entry, isManager = false) {
+      const isAbsent = entry.absence && entry.absence !== 'WORK';
+      const matinVal = isAbsent ? 0 : (parseFloat(entry.matin) || 0);
+      const amVal = isAbsent ? 0 : (parseFloat(entry.apresMidi) || 0);
+      const totalCent = (matinVal + amVal).toFixed(2);
+
+      const targetDriverId = isManager 
+        ? document.getElementById('manager-select-driver').value 
+        : state.currentUser.id;
+
+      return `
+        <div class="p-3.5 bg-white dark:bg-slate-900 rounded-xl border ${isToday ? 'border-blue-500 ring-2 ring-blue-500/20 bg-blue-50/20 dark:bg-blue-950/30' : 'border-slate-200 dark:border-slate-800'} flex flex-col md:flex-row justify-between items-center gap-3">
+          <div class="w-full md:w-36 flex items-center space-x-2">
+            <span class="font-bold text-slate-900 dark:text-white capitalize text-sm">${dayName} ${dayNum}</span>
+            ${isToday ? '<span class="bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Aujourd\'hui</span>' : ''}
+          </div>
+          
+          <div class="grid grid-cols-2 md:grid-cols-5 gap-2.5 w-full">
+            <div>
+              <label class="text-xs text-slate-500 dark:text-slate-400 font-bold block uppercase mb-1">Motif / Statut</label>
+              <select onchange="updateEntry('${targetDriverId}', '${dateStr}', 'absence', this.value)" class="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs bg-slate-50 dark:bg-slate-950 dark:text-white font-semibold">
+                <option value="WORK" ${entry.absence === 'WORK' ? 'selected' : ''}>Service Normal</option>
+                <option value="CP" ${entry.absence === 'CP' ? 'selected' : ''}>CP (Congé Payé)</option>
+                <option value="RTT" ${entry.absence === 'RTT' ? 'selected' : ''}>RTT</option>
+                <option value="AM" ${entry.absence === 'AM' ? 'selected' : ''}>Maladie</option>
+                <option value="JF" ${entry.absence === 'JF' ? 'selected' : ''}>Férié</option>
+                <option value="CSS" ${entry.absence === 'CSS' ? 'selected' : ''}>Sans Solde</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="text-xs text-slate-500 dark:text-slate-400 font-bold block uppercase mb-1">Matin (c)</label>
+              <input type="number" step="0.01" ${isAbsent ? 'disabled' : ''} value="${entry.matin}" onchange="updateEntry('${targetDriverId}', '${dateStr}', 'matin', this.value)" placeholder="0.00" class="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg text-sm bg-slate-50 dark:bg-slate-950 dark:text-white font-semibold ${isAbsent ? 'opacity-40 cursor-not-allowed' : ''}">
+            </div>
+
+            <div class="flex items-center space-x-2 pt-4">
+              <input type="checkbox" id="${isManager ? 'mgr_' : ''}midi_${dateStr}" ${isAbsent ? 'disabled' : ''} ${entry.repasMidi ? 'checked' : ''} onchange="updateEntry('${targetDriverId}', '${dateStr}', 'repasMidi', this.checked)" class="w-4 h-4 text-blue-600 rounded">
+              <label for="${isManager ? 'mgr_' : ''}midi_${dateStr}" class="text-xs font-semibold text-slate-700 dark:text-slate-300">Repas M.</label>
+            </div>
+
+            <div>
+              <label class="text-xs text-slate-500 dark:text-slate-400 font-bold block uppercase mb-1">A.-Midi (c)</label>
+              <input type="number" step="0.01" ${isAbsent ? 'disabled' : ''} value="${entry.apresMidi}" onchange="updateEntry('${targetDriverId}', '${dateStr}', 'apresMidi', this.value)" placeholder="0.00" class="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg text-sm bg-slate-50 dark:bg-slate-950 dark:text-white font-semibold ${isAbsent ? 'opacity-40 cursor-not-allowed' : ''}">
+            </div>
+
+            <div class="flex items-center space-x-2 pt-4">
+              <input type="checkbox" id="${isManager ? 'mgr_' : ''}soir_${dateStr}" ${isAbsent ? 'disabled' : ''} ${entry.repasSoir ? 'checked' : ''} onchange="updateEntry('${targetDriverId}', '${dateStr}', 'repasSoir', this.checked)" class="w-4 h-4 text-blue-600 rounded">
+              <label for="${isManager ? 'mgr_' : ''}soir_${dateStr}" class="text-xs font-semibold text-slate-700 dark:text-slate-300">Repas S.</label>
+            </div>
+          </div>
+
+          <div class="w-full md:w-36 text-right border-t md:border-t-0 pt-2 md:pt-0 border-slate-100 dark:border-slate-800">
+            <span class="text-xs text-slate-400 font-bold uppercase block">Total Jour</span>
+            <span class="font-bold text-blue-600 dark:text-blue-400 text-sm">${totalCent} c</span>
+            <span class="text-xs text-slate-500 font-mono block">(${centToHHMM(totalCent)})</span>
+          </div>
+        </div>
+      `;
+    }
+
     function loadDriverMonthData() {
       const yearMonth = document.getElementById('driver-month-picker').value;
       state.currentMonth = yearMonth;
@@ -811,13 +876,8 @@
       const todayStr = new Date().toISOString().slice(0, 10);
 
       let currentWeekHtml = '';
-      let weekCentSum = 0;
-      let weekMidiSum = 0;
-      let weekSoirSum = 0;
-
-      let monthCentSum = 0;
-      let monthMidiSum = 0;
-      let monthSoirSum = 0;
+      let weekCentSum = 0; weekMidiSum = 0; weekSoirSum = 0;
+      let monthCentSum = 0; monthMidiSum = 0; monthSoirSum = 0;
 
       for (let day = 1; day <= daysInMonth; day++) {
         const dateStr = `${yearMonth}-${day < 10 ? '0' + day : day}`;
@@ -833,60 +893,11 @@
         const amVal = isAbsent ? 0 : (parseFloat(entry.apresMidi) || 0);
         const totalCent = (matinVal + amVal).toFixed(2);
 
-        weekCentSum += parseFloat(totalCent);
-        monthCentSum += parseFloat(totalCent);
-
+        weekCentSum += parseFloat(totalCent); monthCentSum += parseFloat(totalCent);
         if (entry.repasMidi && !isAbsent) { weekMidiSum++; monthMidiSum++; }
         if (entry.repasSoir && !isAbsent) { weekSoirSum++; monthSoirSum++; }
 
-        currentWeekHtml += `
-          <div class="p-3.5 bg-white dark:bg-slate-900 rounded-xl border ${isToday ? 'border-blue-500 ring-2 ring-blue-500/20 bg-blue-50/20 dark:bg-blue-950/30' : 'border-slate-200 dark:border-slate-800'} flex flex-col md:flex-row justify-between items-center gap-3">
-            <div class="w-full md:w-36 flex items-center space-x-2">
-              <span class="font-bold text-slate-900 dark:text-white capitalize text-sm">${dayName} ${day}</span>
-              ${isToday ? '<span class="bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Aujourd\'hui</span>' : ''}
-            </div>
-            
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-2.5 w-full">
-              <div>
-                <label class="text-xs text-slate-500 dark:text-slate-400 font-bold block uppercase mb-1">Motif / Statut</label>
-                <select onchange="updateEntry('${dateStr}', 'absence', this.value)" class="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs bg-slate-50 dark:bg-slate-950 dark:text-white font-semibold">
-                  <option value="WORK" ${entry.absence === 'WORK' ? 'selected' : ''}>Service Normal</option>
-                  <option value="CP" ${entry.absence === 'CP' ? 'selected' : ''}>CP (Congé Payé)</option>
-                  <option value="RTT" ${entry.absence === 'RTT' ? 'selected' : ''}>RTT</option>
-                  <option value="AM" ${entry.absence === 'AM' ? 'selected' : ''}>Maladie</option>
-                  <option value="JF" ${entry.absence === 'JF' ? 'selected' : ''}>Férié</option>
-                  <option value="CSS" ${entry.absence === 'CSS' ? 'selected' : ''}>Sans Solde</option>
-                </select>
-              </div>
-
-              <div>
-                <label class="text-xs text-slate-500 dark:text-slate-400 font-bold block uppercase mb-1">Matin (c)</label>
-                <input type="number" step="0.01" ${isAbsent ? 'disabled' : ''} value="${entry.matin}" onchange="updateEntry('${dateStr}', 'matin', this.value)" placeholder="0.00" class="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg text-sm bg-slate-50 dark:bg-slate-950 dark:text-white font-semibold ${isAbsent ? 'opacity-40 cursor-not-allowed' : ''}">
-              </div>
-
-              <div class="flex items-center space-x-2 pt-4">
-                <input type="checkbox" id="midi_${dateStr}" ${isAbsent ? 'disabled' : ''} ${entry.repasMidi ? 'checked' : ''} onchange="updateEntry('${dateStr}', 'repasMidi', this.checked)" class="w-4 h-4 text-blue-600 rounded">
-                <label for="midi_${dateStr}" class="text-xs font-semibold text-slate-700 dark:text-slate-300">Repas M.</label>
-              </div>
-
-              <div>
-                <label class="text-xs text-slate-500 dark:text-slate-400 font-bold block uppercase mb-1">A.-Midi (c)</label>
-                <input type="number" step="0.01" ${isAbsent ? 'disabled' : ''} value="${entry.apresMidi}" onchange="updateEntry('${dateStr}', 'apresMidi', this.value)" placeholder="0.00" class="w-full p-2 border border-slate-200 dark:border-slate-800 rounded-lg text-sm bg-slate-50 dark:bg-slate-950 dark:text-white font-semibold ${isAbsent ? 'opacity-40 cursor-not-allowed' : ''}">
-              </div>
-
-              <div class="flex items-center space-x-2 pt-4">
-                <input type="checkbox" id="soir_${dateStr}" ${isAbsent ? 'disabled' : ''} ${entry.repasSoir ? 'checked' : ''} onchange="updateEntry('${dateStr}', 'repasSoir', this.checked)" class="w-4 h-4 text-blue-600 rounded">
-                <label for="soir_${dateStr}" class="text-xs font-semibold text-slate-700 dark:text-slate-300">Repas S.</label>
-              </div>
-            </div>
-
-            <div class="w-full md:w-36 text-right border-t md:border-t-0 pt-2 md:pt-0 border-slate-100 dark:border-slate-800">
-              <span class="text-xs text-slate-400 font-bold uppercase block">Total Jour</span>
-              <span class="font-bold text-blue-600 dark:text-blue-400 text-sm">${totalCent} c</span>
-              <span class="text-xs text-slate-500 font-mono block">(${centToHHMM(totalCent)})</span>
-            </div>
-          </div>
-        `;
+        currentWeekHtml += buildDayCardHtml(dateStr, dayName, day, isToday, entry, false);
 
         if (dateObj.getDay() === 0 || day === daysInMonth) {
           grid.innerHTML += `
@@ -902,8 +913,7 @@
               </div>
             </div>
           `;
-          currentWeekHtml = '';
-          weekCentSum = 0; weekMidiSum = 0; weekSoirSum = 0;
+          currentWeekHtml = ''; weekCentSum = 0; weekMidiSum = 0; weekSoirSum = 0;
         }
       }
 
@@ -913,19 +923,15 @@
       document.getElementById('driver-month-soir-count').innerText = monthSoirSum;
     }
 
-    function updateEntry(dateStr, field, val) {
-      const driverId = (state.currentUser && state.currentUser.role === 'manager') 
-        ? document.getElementById('manager-select-driver').value 
-        : state.currentUser.id;
-
-      const entryKey = `${driverId}_${dateStr}`;
+    function updateEntry(targetDriverId, dateStr, field, val) {
+      const entryKey = `${targetDriverId}_${dateStr}`;
       if (!state.entries[entryKey]) {
         state.entries[entryKey] = { matin: '', repasMidi: false, apresMidi: '', repasSoir: false, absence: 'WORK' };
       }
       state.entries[entryKey][field] = val;
       saveState();
 
-      syncToGoogleSheets(driverId, dateStr, state.entries[entryKey]);
+      syncToGoogleSheets(targetDriverId, dateStr, state.entries[entryKey]);
 
       if (state.currentUser && state.currentUser.role === 'manager') {
         loadManagerData();
@@ -974,18 +980,25 @@
 
       const [year, month] = yearMonth.split('-').map(Number);
       const daysInMonth = new Date(year, month, 0).getDate();
+      const todayStr = new Date().toISOString().slice(0, 10);
       const todayDateStr = new Date().toLocaleDateString('fr-FR');
 
-      let totalMonthCent = 0;
-      let totalMonthMidi = 0;
-      let totalMonthSoir = 0;
+      const mgrGrid = document.getElementById('manager-month-grid');
+      mgrGrid.innerHTML = '';
+
+      let currentWeekHtml = '';
+      let weekCentSum = 0; weekMidiSum = 0; weekSoirSum = 0;
+      let monthCentSum = 0; monthMidiSum = 0; monthSoirSum = 0;
       let absenceCounts = { "CP": 0, "RTT": 0, "AM": 0, "JF": 0, "CSS": 0 };
 
-      let interactiveRowsHtml = '';
       let pdfRowsHtml = '';
 
       for (let day = 1; day <= daysInMonth; day++) {
         const dateStr = `${yearMonth}-${day < 10 ? '0' + day : day}`;
+        const dateObj = new Date(year, month - 1, day);
+        const dayName = dateObj.toLocaleDateString('fr-FR', { weekday: 'short' });
+        const isToday = (dateStr === todayStr);
+
         const entryKey = `${driver.id}_${dateStr}`;
         const entry = state.entries[entryKey] || { matin: '', repasMidi: false, apresMidi: '', repasSoir: false, absence: 'WORK' };
 
@@ -998,47 +1011,35 @@
         const amVal = isAbsent ? 0 : (parseFloat(entry.apresMidi) || 0);
         const totalCent = (matinVal + amVal).toFixed(2);
 
-        totalMonthCent += parseFloat(totalCent);
-        if (entry.repasMidi && !isAbsent) totalMonthMidi++;
-        if (entry.repasSoir && !isAbsent) totalMonthSoir++;
+        weekCentSum += parseFloat(totalCent); monthCentSum += parseFloat(totalCent);
+        if (entry.repasMidi && !isAbsent) { weekMidiSum++; monthMidiSum++; }
+        if (entry.repasSoir && !isAbsent) { weekSoirSum++; monthSoirSum++; }
 
-        // 1. Remplissage de la grille interactive Gestionnaire
-        interactiveRowsHtml += `
-          <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-            <td class="p-3 font-bold text-slate-900 dark:text-white">${dateStr}</td>
-            <td class="p-2">
-              <select onchange="updateEntry('${dateStr}', 'absence', this.value)" class="p-1.5 border border-slate-200 dark:border-slate-800 rounded bg-slate-50 dark:bg-slate-950 dark:text-white font-semibold">
-                <option value="WORK" ${entry.absence === 'WORK' ? 'selected' : ''}>Service Normal</option>
-                <option value="CP" ${entry.absence === 'CP' ? 'selected' : ''}>CP (Congé Payé)</option>
-                <option value="RTT" ${entry.absence === 'RTT' ? 'selected' : ''}>RTT</option>
-                <option value="AM" ${entry.absence === 'AM' ? 'selected' : ''}>Maladie</option>
-                <option value="JF" ${entry.absence === 'JF' ? 'selected' : ''}>Férié</option>
-                <option value="CSS" ${entry.absence === 'CSS' ? 'selected' : ''}>Sans Solde</option>
-              </select>
-            </td>
-            <td class="p-2">
-              <input type="number" step="0.01" ${isAbsent ? 'disabled' : ''} value="${entry.matin}" onchange="updateEntry('${dateStr}', 'matin', this.value)" placeholder="0.00" class="w-20 p-1.5 border border-slate-200 dark:border-slate-800 rounded bg-slate-50 dark:bg-slate-950 dark:text-white font-mono ${isAbsent ? 'opacity-30' : ''}">
-            </td>
-            <td class="p-2 text-center">
-              <input type="checkbox" ${isAbsent ? 'disabled' : ''} ${entry.repasMidi ? 'checked' : ''} onchange="updateEntry('${dateStr}', 'repasMidi', this.checked)" class="w-4 h-4 text-blue-600 rounded">
-            </td>
-            <td class="p-2">
-              <input type="number" step="0.01" ${isAbsent ? 'disabled' : ''} value="${entry.apresMidi}" onchange="updateEntry('${dateStr}', 'apresMidi', this.value)" placeholder="0.00" class="w-20 p-1.5 border border-slate-200 dark:border-slate-800 rounded bg-slate-50 dark:bg-slate-950 dark:text-white font-mono ${isAbsent ? 'opacity-30' : ''}">
-            </td>
-            <td class="p-2 text-center">
-              <input type="checkbox" ${isAbsent ? 'disabled' : ''} ${entry.repasSoir ? 'checked' : ''} onchange="updateEntry('${dateStr}', 'repasSoir', this.checked)" class="w-4 h-4 text-blue-600 rounded">
-            </td>
-            <td class="p-3 font-bold text-blue-600 dark:text-blue-400">
-              ${totalCent} c <span class="text-slate-400 font-normal font-mono">(${centToHHMM(totalCent)})</span>
-            </td>
-          </tr>
-        `;
+        // 1. Visuel Espace Gestionnaire (Même structure interactive que Chauffeur)
+        currentWeekHtml += buildDayCardHtml(dateStr, dayName, day, isToday, entry, true);
 
-        // 2. Remplissage des lignes propres pour le PDF
+        if (dateObj.getDay() === 0 || day === daysInMonth) {
+          mgrGrid.innerHTML += `
+            <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl space-y-3 border border-slate-200 dark:border-slate-800">
+              ${currentWeekHtml}
+              <div class="bg-slate-900 text-white p-3.5 rounded-xl flex flex-col md:flex-row justify-between items-center text-xs font-bold gap-2">
+                <span>TOTAL SEMAINE</span>
+                <div class="flex space-x-4">
+                  <span>Midi: <strong class="text-blue-400">${weekMidiSum}</strong></span>
+                  <span>Soir: <strong class="text-blue-400">${weekSoirSum}</strong></span>
+                  <span class="text-emerald-400 text-sm font-bold">${weekCentSum.toFixed(2)} c (${centToHHMM(weekCentSum)})</span>
+                </div>
+              </div>
+            </div>
+          `;
+          currentWeekHtml = ''; weekCentSum = 0; weekMidiSum = 0; weekSoirSum = 0;
+        }
+
+        // 2. Visuel propre pour le PDF
         pdfRowsHtml += `
-          <tr style="border-bottom: 1px solid #e2e8f0;">
+          <tr style="border-bottom: 1px solid #e2e8f0; font-size: 9px;">
             <td style="padding: 4px; font-weight: bold;">${dateStr}</td>
-            <td style="padding: 4px;">${isAbsent ? entry.absence : 'Normal'}</td>
+            <td style="padding: 4px;">${isAbsent ? `<span style="background:#fef3c7; color:#92400e; padding:1px 4px; border-radius:4px; font-weight:bold;">${entry.absence}</span>` : 'Normal'}</td>
             <td style="padding: 4px;">${isAbsent ? '-' : (entry.matin || '-')}</td>
             <td style="padding: 4px; font-weight: bold; color: #2563eb;">${entry.repasMidi && !isAbsent ? 'OUI' : '-'}</td>
             <td style="padding: 4px;">${isAbsent ? '-' : (entry.apresMidi || '-')}</td>
@@ -1049,122 +1050,110 @@
         `;
       }
 
-      document.getElementById('manager-interactive-table').innerHTML = interactiveRowsHtml;
-
-      const totalMidiCost = (totalMonthMidi * rateMidi).toFixed(2);
-      const totalSoirCost = (totalMonthSoir * rateSoir).toFixed(2);
+      const totalMidiCost = (monthMidiSum * rateMidi).toFixed(2);
+      const totalSoirCost = (monthSoirSum * rateSoir).toFixed(2);
       const totalGlobalRepas = (parseFloat(totalMidiCost) + parseFloat(totalSoirCost)).toFixed(2);
 
-      // Cartes de synthèse à l'écran
-      document.getElementById('manager-cards-summary').innerHTML = `
-        <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-1">
-          <span class="text-xs text-slate-500 font-bold uppercase">Volume d'Heures Mois</span>
-          <p class="text-2xl font-black text-slate-900 dark:text-white">${totalMonthCent.toFixed(2)} c</p>
-          <p class="text-xs text-blue-600 font-mono font-bold">Équivalent : ${centToHHMM(totalMonthCent)}</p>
-        </div>
+      // Met à jour la carte de synthèse Gestionnaire
+      document.getElementById('manager-month-total-cent').innerText = `${monthCentSum.toFixed(2)} c`;
+      document.getElementById('manager-month-total-hhmm').innerText = `(${centToHHMM(monthCentSum)})`;
+      document.getElementById('manager-month-midi-count').innerText = monthMidiSum;
+      document.getElementById('manager-month-midi-cost').innerText = `${totalMidiCost}€`;
+      document.getElementById('manager-month-soir-count').innerText = monthSoirSum;
+      document.getElementById('manager-month-soir-cost').innerText = `${totalSoirCost}€`;
 
-        <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-1">
-          <span class="text-xs text-slate-500 font-bold uppercase">Indemnités Repas</span>
-          <p class="text-2xl font-black text-emerald-600">${totalGlobalRepas} €</p>
-          <p class="text-xs text-slate-500">${totalMonthMidi} midis (${totalMidiCost}€) | ${totalMonthSoir} soirs (${totalSoirCost}€)</p>
-        </div>
-
-        <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-1">
-          <span class="text-xs text-slate-500 font-bold uppercase">Jours d'Absences</span>
-          <p class="text-2xl font-black text-amber-600">${absenceCounts['CP'] + absenceCounts['RTT'] + absenceCounts['AM']} j</p>
-          <p class="text-xs text-slate-500">CP: ${absenceCounts['CP']} | RTT: ${absenceCounts['RTT']} | Maladie: ${absenceCounts['AM']}</p>
-        </div>
-      `;
-
-      // 3. Remplissage STRICT du Template PDF (2 Pages A4 réelles)
+      // 3. Remplissage du PDF INSPIRED BY THE APP DESIGN (Strictement 2 Pages)
       document.getElementById('printable-pdf-template').innerHTML = `
+        <!-- PAGE 1 : TEMPS ET REPAS AU DESIGN APPLI -->
         <div class="pdf-page-1">
-          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0f172a; padding-bottom: 8px; margin-bottom: 12px;">
-            <div>
-              <h2 style="font-size: 14px; font-weight: 900; margin: 0;">RELEVÉ MENSUEL DES HEURES ET REPAS</h2>
-              <p style="font-size: 9px; color: #64748b; margin: 2px 0 0 0;">Édité le ${todayDateStr} — Page 1/2 (Planning Quotidien)</p>
+          <div style="background: #0f172a; color: white; padding: 12px 16px; border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; items-center; gap: 8px;">
+              <div style="font-weight: 900; font-size: 16px; letter-spacing: -0.5px;">SUIVI<span style="color: #3b82f6;">PRO</span></div>
             </div>
-            <div style="text-align: right; font-size: 9px;">
-              <p style="margin: 0;"><strong>Période :</strong> ${yearMonth}</p>
-              <p style="margin: 0;"><strong>Chauffeur :</strong> ${driver.name}</p>
-              <p style="margin: 0;"><strong>Matricule :</strong> ${driver.matricule || 'N/A'} | <strong>Immat :</strong> ${driver.plate || 'N/A'}</p>
+            <div style="text-align: right; font-size: 9px; color: #94a3b8;">
+              <div>Rapport Édité le <strong>${todayDateStr}</strong></div>
+              <div>Page 1 / 2 — Planning Mensuel</div>
             </div>
           </div>
 
-          <table style="width: 100%; border-collapse: collapse; font-size: 9.5px; text-align: left;">
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px 12px; border-radius: 8px; margin-bottom: 12px; display: flex; justify-content: space-between; font-size: 9px;">
+            <div>Chauffeur : <strong style="color: #0f172a;">${driver.name}</strong></div>
+            <div>Matricule : <strong>${driver.matricule || 'N/A'}</strong></div>
+            <div>Immatriculation : <strong>${driver.plate || 'N/A'}</strong></div>
+            <div>Période : <strong>${yearMonth}</strong></div>
+          </div>
+
+          <table style="width: 100%; border-collapse: collapse; text-align: left;">
             <thead>
-              <tr style="background-color: #f1f5f9; text-transform: uppercase; font-weight: bold; border-bottom: 2px solid #cbd5e1;">
-                <th style="padding: 4px;">Date</th>
-                <th style="padding: 4px;">Statut</th>
-                <th style="padding: 4px;">Matin</th>
-                <th style="padding: 4px;">Midi</th>
-                <th style="padding: 4px;">A.-Midi</th>
-                <th style="padding: 4px;">Soir</th>
-                <th style="padding: 4px;">Total Jour</th>
-                <th style="padding: 4px;">HH:MM</th>
+              <tr style="background-color: #0f172a; color: white; font-size: 8.5px; text-transform: uppercase;">
+                <th style="padding: 5px; border-top-left-radius: 6px;">Date</th>
+                <th style="padding: 5px;">Statut</th>
+                <th style="padding: 5px;">Matin</th>
+                <th style="padding: 5px;">Midi</th>
+                <th style="padding: 5px;">A.-Midi</th>
+                <th style="padding: 5px;">Soir</th>
+                <th style="padding: 5px;">Total Jour</th>
+                <th style="padding: 5px; border-top-right-radius: 6px;">HH:MM</th>
               </tr>
             </thead>
             <tbody>${pdfRowsHtml}</tbody>
           </table>
         </div>
 
+        <!-- PAGE 2 : SYNTHÈSE AU DESIGN APPLI -->
         <div class="pdf-page-2 pdf-page-break">
-          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0f172a; padding-bottom: 8px; margin-bottom: 16px;">
+          <div style="background: #0f172a; color: white; padding: 12px 16px; border-radius: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-weight: 900; font-size: 16px;">SUIVI<span style="color: #3b82f6;">PRO</span> — SYNTHÈSE COMPTABLE</div>
+            <div style="font-size: 9px; color: #94a3b8;">Page 2 / 2 — Bilan de Paie</div>
+          </div>
+
+          <!-- Carte Bilan Sombre identique App -->
+          <div style="background: linear-gradient(135deg, #0f172a, #1e1b4b); color: white; padding: 16px; border-radius: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
             <div>
-              <h2 style="font-size: 14px; font-weight: 900; margin: 0;">SYNTHÈSE COMPTABLE ET VALIDATION DE PAIE</h2>
-              <p style="font-size: 9px; color: #64748b; margin: 2px 0 0 0;">Édité le ${todayDateStr} — Page 2/2 (Bilan de Période)</p>
+              <span style="font-size: 9px; color: #94a3b8; text-transform: uppercase; font-weight: bold;">Volume d'heures du mois</span>
+              <div style="font-size: 24px; font-weight: 900; color: #60a5fa; margin-top: 2px;">${monthCentSum.toFixed(2)} c</div>
+              <span style="font-size: 10px; color: #cbd5e1; font-family: monospace;">(${centToHHMM(monthCentSum)})</span>
             </div>
-            <div style="text-align: right; font-size: 9px;">
-              <p style="margin: 0;"><strong>Chauffeur :</strong> ${driver.name}</p>
-            </div>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
-            <div style="background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
-              <h3 style="font-size: 10px; text-transform: uppercase; margin: 0 0 6px 0; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px;">Bilan Général Heures</h3>
-              <p style="margin: 4px 0;">• Volume Travaillé : <strong>${totalMonthCent.toFixed(2)} c</strong></p>
-              <p style="margin: 4px 0;">• Équivalent Heures / Min : <strong>${centToHHMM(totalMonthCent)}</strong></p>
-            </div>
-
-            <div style="background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
-              <h3 style="font-size: 10px; text-transform: uppercase; margin: 0 0 6px 0; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px;">Bilan Indemnités Repas</h3>
-              <p style="margin: 3px 0;">• Repas Midi (${totalMonthMidi} x ${rateMidi.toFixed(2)} €) : <strong>${totalMidiCost} €</strong></p>
-              <p style="margin: 3px 0;">• Repas Soir (${totalMonthSoir} x ${rateSoir.toFixed(2)} €) : <strong>${totalSoirCost} €</strong></p>
-              <p style="margin: 6px 0 0 0; font-weight: bold; color: #047857; border-top: 1px solid #e2e8f0; padding-top: 4px;">Total Indemnités : ${totalGlobalRepas} €</p>
+            <div style="text-align: right; background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 8px; border: 1px solid #334155;">
+              <div style="font-size: 10px; margin-bottom: 2px;">Repas Midi : <strong style="color: #60a5fa;">${monthMidiSum}</strong> (${totalMidiCost}€)</div>
+              <div style="font-size: 10px;">Repas Soir : <strong style="color: #60a5fa;">${monthSoirSum}</strong> (${totalSoirCost}€)</div>
+              <div style="font-size: 11px; font-weight: bold; color: #34d399; margin-top: 4px; border-top: 1px solid #334155; padding-top: 4px;">Total Repas : ${totalGlobalRepas} €</div>
             </div>
           </div>
 
-          <div style="background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
-            <h3 style="font-size: 10px; text-transform: uppercase; margin: 0 0 8px 0; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px;">Décompte des Absences & Congés</h3>
+          <!-- Décompte Absences Card -->
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; margin-bottom: 20px;">
+            <h3 style="font-size: 10px; font-weight: bold; text-transform: uppercase; color: #64748b; margin: 0 0 10px 0; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px;">Récapitulatif des Congés & Absences</h3>
             <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; text-align: center;">
-              <div style="background: white; padding: 6px; border-radius: 6px; border: 1px solid #cbd5e1;">
-                <span style="display: block; font-size: 8px; color: #64748b;">CONGÉS PAYÉS</span>
-                <strong style="font-size: 12px;">${absenceCounts["CP"]} j</strong>
+              <div style="background: white; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <span style="display: block; font-size: 8px; color: #64748b; font-weight: bold;">CONGÉS PAYÉS</span>
+                <strong style="font-size: 14px; color: #0f172a;">${absenceCounts["CP"]} j</strong>
               </div>
-              <div style="background: white; padding: 6px; border-radius: 6px; border: 1px solid #cbd5e1;">
-                <span style="display: block; font-size: 8px; color: #64748b;">RTT</span>
-                <strong style="font-size: 12px;">${absenceCounts["RTT"]} j</strong>
+              <div style="background: white; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <span style="display: block; font-size: 8px; color: #64748b; font-weight: bold;">RTT</span>
+                <strong style="font-size: 14px; color: #0f172a;">${absenceCounts["RTT"]} j</strong>
               </div>
-              <div style="background: white; padding: 6px; border-radius: 6px; border: 1px solid #cbd5e1;">
-                <span style="display: block; font-size: 8px; color: #64748b;">MALADIE</span>
-                <strong style="font-size: 12px;">${absenceCounts["AM"]} j</strong>
+              <div style="background: white; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <span style="display: block; font-size: 8px; color: #64748b; font-weight: bold;">MALADIE</span>
+                <strong style="font-size: 14px; color: #0f172a;">${absenceCounts["AM"]} j</strong>
               </div>
-              <div style="background: white; padding: 6px; border-radius: 6px; border: 1px solid #cbd5e1;">
-                <span style="display: block; font-size: 8px; color: #64748b;">FÉRIÉS</span>
-                <strong style="font-size: 12px;">${absenceCounts["JF"]} j</strong>
+              <div style="background: white; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <span style="display: block; font-size: 8px; color: #64748b; font-weight: bold;">FÉRIÉS</span>
+                <strong style="font-size: 14px; color: #0f172a;">${absenceCounts["JF"]} j</strong>
               </div>
-              <div style="background: white; padding: 6px; border-radius: 6px; border: 1px solid #cbd5e1;">
-                <span style="display: block; font-size: 8px; color: #64748b;">SANS SOLDE</span>
-                <strong style="font-size: 12px;">${absenceCounts["CSS"]} j</strong>
+              <div style="background: white; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <span style="display: block; font-size: 8px; color: #64748b; font-weight: bold;">SANS SOLDE</span>
+                <strong style="font-size: 14px; color: #0f172a;">${absenceCounts["CSS"]} j</strong>
               </div>
             </div>
           </div>
 
-          <div style="border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px;">
-            <p style="font-size: 9px; color: #94a3b8; margin: 0 0 30px 0;">Observations / Remarques :</p>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 9px; border-top: 1px solid #e2e8f0; padding-top: 10px;">
-              <div>Signature Chauffeur (précédée de "Lu et approuvé") :</div>
-              <div style="text-align: right;">Signature Responsable Exploitation :</div>
+          <!-- Zone Signature -->
+          <div style="border: 1px solid #e2e8f0; padding: 14px; border-radius: 12px; background: white;">
+            <p style="font-size: 9px; color: #94a3b8; margin: 0 0 40px 0;">Observations / Visa Exploitation :</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 9px; border-top: 1px solid #f1f5f9; padding-top: 10px; color: #475569;">
+              <div>Signature Chauffeur :</div>
+              <div style="text-align: right;">Signature Responsable :</div>
             </div>
           </div>
         </div>
