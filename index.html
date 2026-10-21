@@ -72,7 +72,7 @@
           <div>
             <div class="flex items-center gap-2">
               <h1 class="text-base font-extrabold tracking-tight text-white">SUIVI<span class="text-blue-500">PRO</span></h1>
-              <span class="text-[9px] font-mono font-semibold bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded border border-blue-500/20">v2.3</span>
+              <span class="text-[9px] font-mono font-semibold bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded border border-blue-500/20">v2.4</span>
             </div>
             <p class="text-[11px] text-slate-400 font-medium leading-none mt-0.5">Heures, Repas & Absences</p>
           </div>
@@ -418,9 +418,9 @@
       managers: JSON.parse(localStorage.getItem('sp_managers')) || [
         { id: "m1", name: "Gestionnaire Principal", pin: "2157" }
       ],
-      drivers: JSON.parse(localStorage.getItem('sp_drivers')) || [],
+      drivers: [], // Vierge par défaut : reconstruit exclusivement depuis le Google Sheet
       currentMonth: new Date().toISOString().slice(0, 7),
-      entries: {} // Le Cloud devient la source principale pour les pointages
+      entries: {}  // Vierge par défaut : reconstruit exclusivement depuis le Google Sheet
     };
 
     function toggleDarkMode() {
@@ -490,27 +490,35 @@
     function init() {
       document.getElementById('driver-month-picker').value = state.currentMonth;
       document.getElementById('manager-month-picker').value = state.currentMonth;
-      populateDriverSelects();
-      populateManagerSelects();
       updateLiveDateTime();
       setInterval(updateLiveDateTime, 30000);
       
-      // Charger les données en direct du Cloud au démarrage
+      // Téléchargement intégral et forcé depuis le Cloud au démarrage
       fetchOnlineData(false);
     }
 
-    // FONCTION DE SYNCHRONISATION CLOUD CORRIGÉE ET FIABLE
+    // SOURCE DE VÉRITÉ ABSOLUE : Google Sheet
     function fetchOnlineData(showAlert = false) {
       fetch(CONFIG.SCRIPT_URL)
         .then(res => res.json())
         .then(data => {
-          if (Array.isArray(data)) {
-            state.entries = {}; // Remise à zéro pour forcer la lecture exacte du Cloud
-            
-            // Reconstitution dynamique des chauffeurs depuis les données Cloud si le cache local est vide
-            const cloudDriversMap = new Map();
+          // 1. Récupération stricte de la liste des chauffeurs depuis le Sheet
+          if (Array.isArray(data.drivers) && data.drivers.length > 0) {
+            state.drivers = data.drivers.map(d => ({
+              id: d.Id || d.id,
+              name: d.Name || d.name,
+              matricule: d.Matricule || d.matricule || "",
+              plate: d.Plate || d.plate || "",
+              pin: d.Pin || d.pin || "0000"
+            }));
+          } else {
+            state.drivers = [];
+          }
 
-            data.forEach(row => {
+          // 2. Récupération stricte des pointages depuis le Sheet
+          state.entries = {};
+          if (Array.isArray(data.entries)) {
+            data.entries.forEach(row => {
               if (row.DriverId && row.Date) {
                 const key = `${row.DriverId}_${row.Date}`;
                 state.entries[key] = {
@@ -520,39 +528,47 @@
                   repasSoir: row.RepasSoir === 'OUI',
                   absence: row.Absence || 'WORK'
                 };
-
-                if (row.DriverId && row.DriverName) {
-                  cloudDriversMap.set(row.DriverId, row.DriverName);
-                }
               }
             });
+          }
 
-            // Si des chauffeurs existent dans le cloud mais pas en local, on les intègre
-            cloudDriversMap.forEach((name, id) => {
-              if (!state.drivers.some(d => d.id === id)) {
-                state.drivers.push({ id: id, name: name, matricule: "", plate: "", pin: "0000" });
-              }
-            });
+          saveState();
 
-            saveState();
+          if (state.currentUser) {
+            if (state.currentUser.role === 'driver') loadDriverMonthData();
+            if (state.currentUser.role === 'manager') loadManagerData();
+            if (state.currentUser.role === 'admin') loadAdminData();
+          } else {
+            populateDriverSelects();
+            populateManagerSelects();
+          }
 
-            if (state.currentUser) {
-              if (state.currentUser.role === 'driver') loadDriverMonthData();
-              if (state.currentUser.role === 'manager') loadManagerData();
-              if (state.currentUser.role === 'admin') loadAdminData();
-            }
-
-            if (showAlert) {
-              alert("Synchronisation Cloud réussie ! Données à jour.");
-            }
+          if (showAlert) {
+            alert("Synchronisation réussie : Données chargées depuis le Cloud !");
           }
         })
         .catch(err => {
           console.error("Erreur de synchronisation Cloud :", err);
           if (showAlert) {
-            alert("Erreur : Impossible de joindre le serveur Google Sheets. Vérifiez votre connexion.");
+            alert("Erreur : Impossible de joindre le Google Sheet.");
           }
         });
+    }
+
+    function syncDriversToCloud() {
+      const params = new URLSearchParams({
+        action: "saveDrivers",
+        data: JSON.stringify(state.drivers)
+      });
+
+      fetch(`${CONFIG.SCRIPT_URL}?${params.toString()}`, {
+        method: 'GET',
+        mode: 'no-cors'
+      }).then(() => {
+        console.log("Liste des chauffeurs sauvegardée dans le Cloud.");
+      }).catch(err => {
+        console.error("Erreur synchro chauffeurs :", err);
+      });
     }
 
     function populateDriverSelects() {
@@ -644,7 +660,6 @@
       document.getElementById('manager-space').classList.add('hidden');
       document.getElementById('admin-space').classList.add('hidden');
 
-      // Actualisation des données en direct à l'affichage des écrans
       fetchOnlineData(false);
 
       if (state.currentUser.role === 'admin') {
@@ -666,6 +681,7 @@
       document.getElementById('logout-btn').classList.add('hidden');
       document.getElementById('login-pin-driver').value = '';
       document.getElementById('login-pin-manager').value = '';
+      fetchOnlineData(false);
     }
 
     function saveDriver() {
@@ -684,6 +700,7 @@
         pin: pin || '0000'
       });
       saveState();
+      syncDriversToCloud();
 
       document.getElementById('new-driver-name').value = '';
       document.getElementById('new-driver-matricule').value = '';
@@ -697,6 +714,7 @@
       if (confirm(`Confirmer la suppression de ${driver.name} ?`)) {
         state.drivers = state.drivers.filter(d => d.id !== driverId);
         saveState();
+        syncDriversToCloud();
       }
     }
 
@@ -810,6 +828,7 @@
       if (driver) {
         driver.pin = newPin;
         saveState();
+        syncDriversToCloud();
         loadAdminData();
         alert(`PIN mis à jour pour ${driver.name}.`);
       }
@@ -997,7 +1016,6 @@
         totalHHMM: centToHHMM(totalCent)
       });
 
-      // Utilisation d'une requête fetch propre avec no-cors pour garantir l'envoi au Cloud
       fetch(`${CONFIG.SCRIPT_URL}?${params.toString()}`, {
         method: 'GET',
         mode: 'no-cors'
@@ -1265,6 +1283,7 @@
       if (driver) {
         driver.pin = newPin;
         saveState();
+        syncDriversToCloud();
         alert("Code PIN mis à jour avec succès.");
         closeChangePinModal();
       }
