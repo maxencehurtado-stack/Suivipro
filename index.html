@@ -60,7 +60,6 @@
         <div class="flex items-center space-x-3 cursor-pointer" onclick="location.reload()">
           <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-sky-400 p-0.5 shadow-lg shadow-blue-500/20 flex items-center justify-center">
             <div class="w-full h-full bg-slate-900 rounded-[14px] flex items-center justify-center">
-              <!-- SVG Volant + Horloge / Minimaliste -->
               <svg class="w-5 h-5 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="9"/>
                 <circle cx="12" cy="12" r="3"/>
@@ -73,7 +72,7 @@
           <div>
             <div class="flex items-center gap-2">
               <h1 class="text-base font-extrabold tracking-tight text-white">SUIVI<span class="text-blue-500">PRO</span></h1>
-              <span class="text-[9px] font-mono font-semibold bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded border border-blue-500/20">v2.0</span>
+              <span class="text-[9px] font-mono font-semibold bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded border border-blue-500/20">v2.2</span>
             </div>
             <p class="text-[11px] text-slate-400 font-medium leading-none mt-0.5">Heures, Repas & Absences</p>
           </div>
@@ -172,9 +171,9 @@
 
             <div class="flex items-center space-x-3">
               <button onclick="openChangePinModal()" class="text-xs bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 px-3.5 py-2.5 rounded-xl font-semibold border border-slate-200 dark:border-slate-800 transition">🔑 Modifier mon PIN</button>
-              <span id="sync-status" class="text-xs px-3.5 py-2 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 font-semibold flex items-center gap-1.5 border border-emerald-200 dark:border-emerald-900">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Cloud Synchro
-              </span>
+              <button onclick="fetchOnlineData()" class="text-xs bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 hover:bg-blue-100 px-3.5 py-2.5 rounded-xl font-semibold border border-blue-200 dark:border-blue-900 transition flex items-center gap-1.5">
+                🔄 Synchroniser Cloud
+              </button>
             </div>
           </div>
 
@@ -211,7 +210,7 @@
               </div>
             </div>
 
-            <!-- ONGLET GESTION DU MOIS (MEME DESIGN QUE CHAUFFEUR) -->
+            <!-- ONGLET GESTION DU MOIS -->
             <div id="tab-summary" class="space-y-6">
               <div class="grid grid-cols-1 md:grid-cols-6 gap-3 bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
                 <div>
@@ -253,10 +252,10 @@
                 </div>
               </div>
 
-              <!-- GRILLE DU MOIS INTERACTIVE GESTIONNAIRE (IDENTIQUE AU DESIGN CHAUFFEUR) -->
+              <!-- GRILLE DU MOIS INTERACTIVE GESTIONNAIRE -->
               <div id="manager-month-grid" class="space-y-4"></div>
 
-              <!-- TEMPLATE CACHÉ POUR GÉNÉRATION PDF INSPIRED BY APP (2 PAGES RIGIDES) -->
+              <!-- TEMPLATE CACHÉ POUR GÉNÉRATION PDF -->
               <div class="hidden">
                 <div id="printable-pdf-template"></div>
               </div>
@@ -410,7 +409,7 @@
 
   <script>
     const CONFIG = {
-      SCRIPT_URL: "https://script.google.com/macros/s/AKfycbzyS8IP1wUPXD2XmcfE-sk7IUi6V00skLYf-l-hJkjOwKG7wYugmCPTVF1eIFC_UiQ/exec",
+      SCRIPT_URL: "https://script.google.com/macros/s/AKfycbzgxWCU7eJQ9X8HOEk2H8Bkmpd3H9VZqFtuoCdccAYYmt18-k3HvfK1YJZEt0R6wnaZRg/exec",
       MASTER_ADMIN_PIN: "2157"
     };
 
@@ -510,9 +509,9 @@
               if (row.DriverId && row.Date) {
                 const key = `${row.DriverId}_${row.Date}`;
                 state.entries[key] = {
-                  matin: row.Matin || '',
+                  matin: row.Matin !== undefined ? row.Matin : '',
                   repasMidi: row.RepasMidi === 'OUI',
-                  apresMidi: row.ApresMidi || '',
+                  apresMidi: row.ApresMidi !== undefined ? row.ApresMidi : '',
                   repasSoir: row.RepasSoir === 'OUI',
                   absence: row.Absence || 'WORK'
                 };
@@ -526,7 +525,7 @@
             }
           }
         })
-        .catch(err => console.log("Cloud synchro:", err));
+        .catch(err => console.log("Synchronisation Cloud :", err));
     }
 
     function populateDriverSelects() {
@@ -804,7 +803,6 @@
       return `${hours}h${minutes < 10 ? '0' : ''}${minutes}`;
     }
 
-    // GENERATEUR DE BLOCS QUOTIDIENS CARTE (UTILISE POUR CHAUFFEURS & GESTIONNAIRES)
     function buildDayCardHtml(dateStr, dayName, dayNum, isToday, entry, isManager = false) {
       const isAbsent = entry.absence && entry.absence !== 'WORK';
       const matinVal = isAbsent ? 0 : (parseFloat(entry.matin) || 0);
@@ -992,6 +990,7 @@
       let absenceCounts = { "CP": 0, "RTT": 0, "AM": 0, "JF": 0, "CSS": 0 };
 
       let pdfRowsHtml = '';
+      let weekIndex = 1;
 
       for (let day = 1; day <= daysInMonth; day++) {
         const dateStr = `${yearMonth}-${day < 10 ? '0' + day : day}`;
@@ -1015,8 +1014,21 @@
         if (entry.repasMidi && !isAbsent) { weekMidiSum++; monthMidiSum++; }
         if (entry.repasSoir && !isAbsent) { weekSoirSum++; monthSoirSum++; }
 
-        // 1. Visuel Espace Gestionnaire (Même structure interactive que Chauffeur)
         currentWeekHtml += buildDayCardHtml(dateStr, dayName, day, isToday, entry, true);
+
+        // Ligne tableau PDF jour
+        pdfRowsHtml += `
+          <tr style="border-bottom: 1px solid #e2e8f0; font-size: 9px;">
+            <td style="padding: 4px; font-weight: bold;">${dateStr}</td>
+            <td style="padding: 4px;">${isAbsent ? `<span style="background:#fef3c7; color:#92400e; padding:1px 4px; border-radius:4px; font-weight:bold;">${entry.absence}</span>` : 'Normal'}</td>
+            <td style="padding: 4px;">${isAbsent ? '-' : (entry.matin || '-')}</td>
+            <td style="padding: 4px; font-weight: bold; color: #2563eb;">${entry.repasMidi && !isAbsent ? 'OUI' : '-'}</td>
+            <td style="padding: 4px;">${isAbsent ? '-' : (entry.apresMidi || '-')}</td>
+            <td style="padding: 4px; font-weight: bold; color: #2563eb;">${entry.repasSoir && !isAbsent ? 'OUI' : '-'}</td>
+            <td style="padding: 4px; font-weight: bold;">${totalCent} c</td>
+            <td style="padding: 4px; font-family: monospace;">${centToHHMM(totalCent)}</td>
+          </tr>
+        `;
 
         if (dateObj.getDay() === 0 || day === daysInMonth) {
           mgrGrid.innerHTML += `
@@ -1032,29 +1044,27 @@
               </div>
             </div>
           `;
-          currentWeekHtml = ''; weekCentSum = 0; weekMidiSum = 0; weekSoirSum = 0;
-        }
 
-        // 2. Visuel propre pour le PDF
-        pdfRowsHtml += `
-          <tr style="border-bottom: 1px solid #e2e8f0; font-size: 9px;">
-            <td style="padding: 4px; font-weight: bold;">${dateStr}</td>
-            <td style="padding: 4px;">${isAbsent ? `<span style="background:#fef3c7; color:#92400e; padding:1px 4px; border-radius:4px; font-weight:bold;">${entry.absence}</span>` : 'Normal'}</td>
-            <td style="padding: 4px;">${isAbsent ? '-' : (entry.matin || '-')}</td>
-            <td style="padding: 4px; font-weight: bold; color: #2563eb;">${entry.repasMidi && !isAbsent ? 'OUI' : '-'}</td>
-            <td style="padding: 4px;">${isAbsent ? '-' : (entry.apresMidi || '-')}</td>
-            <td style="padding: 4px; font-weight: bold; color: #2563eb;">${entry.repasSoir && !isAbsent ? 'OUI' : '-'}</td>
-            <td style="padding: 4px; font-weight: bold;">${totalCent} c</td>
-            <td style="padding: 4px; font-family: monospace;">${centToHHMM(totalCent)}</td>
-          </tr>
-        `;
+          // Ligne Total Semaine PDF
+          pdfRowsHtml += `
+            <tr style="background-color: #f1f5f9; font-weight: bold; font-size: 9px; border-bottom: 2px solid #cbd5e1;">
+              <td colspan="3" style="padding: 5px;">TOTAL SEMAINE ${weekIndex}</td>
+              <td style="padding: 5px; color: #1d4ed8;">${weekMidiSum} midi</td>
+              <td style="padding: 5px;"></td>
+              <td style="padding: 5px; color: #1d4ed8;">${weekSoirSum} soir</td>
+              <td style="padding: 5px; color: #047857;">${weekCentSum.toFixed(2)} c</td>
+              <td style="padding: 5px; font-family: monospace; color: #047857;">${centToHHMM(weekCentSum)}</td>
+            </tr>
+          `;
+
+          currentWeekHtml = ''; weekCentSum = 0; weekMidiSum = 0; weekSoirSum = 0; weekIndex++;
+        }
       }
 
       const totalMidiCost = (monthMidiSum * rateMidi).toFixed(2);
       const totalSoirCost = (monthSoirSum * rateSoir).toFixed(2);
       const totalGlobalRepas = (parseFloat(totalMidiCost) + parseFloat(totalSoirCost)).toFixed(2);
 
-      // Met à jour la carte de synthèse Gestionnaire
       document.getElementById('manager-month-total-cent').innerText = `${monthCentSum.toFixed(2)} c`;
       document.getElementById('manager-month-total-hhmm').innerText = `(${centToHHMM(monthCentSum)})`;
       document.getElementById('manager-month-midi-count').innerText = monthMidiSum;
@@ -1062,17 +1072,14 @@
       document.getElementById('manager-month-soir-count').innerText = monthSoirSum;
       document.getElementById('manager-month-soir-cost').innerText = `${totalSoirCost}€`;
 
-      // 3. Remplissage du PDF INSPIRED BY THE APP DESIGN (Strictement 2 Pages)
+      // TEMPLATE PDF CORRIGÉ (AVEC TOTAUX JOUR, SEMAINE & MOIS CLairs)
       document.getElementById('printable-pdf-template').innerHTML = `
-        <!-- PAGE 1 : TEMPS ET REPAS AU DESIGN APPLI -->
         <div class="pdf-page-1">
           <div style="background: #0f172a; color: white; padding: 12px 16px; border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
-            <div style="display: flex; items-center; gap: 8px;">
-              <div style="font-weight: 900; font-size: 16px; letter-spacing: -0.5px;">SUIVI<span style="color: #3b82f6;">PRO</span></div>
-            </div>
+            <div style="font-weight: 900; font-size: 16px; letter-spacing: -0.5px;">SUIVI<span style="color: #3b82f6;">PRO</span></div>
             <div style="text-align: right; font-size: 9px; color: #94a3b8;">
               <div>Rapport Édité le <strong>${todayDateStr}</strong></div>
-              <div>Page 1 / 2 — Planning Mensuel</div>
+              <div>Page 1 / 2 — Planning & Totaux Hebdomadaires</div>
             </div>
           </div>
 
@@ -1100,30 +1107,27 @@
           </table>
         </div>
 
-        <!-- PAGE 2 : SYNTHÈSE AU DESIGN APPLI -->
         <div class="pdf-page-2 pdf-page-break">
           <div style="background: #0f172a; color: white; padding: 12px 16px; border-radius: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
-            <div style="font-weight: 900; font-size: 16px;">SUIVI<span style="color: #3b82f6;">PRO</span> — SYNTHÈSE COMPTABLE</div>
+            <div style="font-weight: 900; font-size: 16px;">SUIVI<span style="color: #3b82f6;">PRO</span> — SYNTHÈSE & CUMUL MENSUEL</div>
             <div style="font-size: 9px; color: #94a3b8;">Page 2 / 2 — Bilan de Paie</div>
           </div>
 
-          <!-- Carte Bilan Sombre identique App -->
           <div style="background: linear-gradient(135deg, #0f172a, #1e1b4b); color: white; padding: 16px; border-radius: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
             <div>
-              <span style="font-size: 9px; color: #94a3b8; text-transform: uppercase; font-weight: bold;">Volume d'heures du mois</span>
+              <span style="font-size: 9px; color: #94a3b8; text-transform: uppercase; font-weight: bold;">Cumul Heures du Mois</span>
               <div style="font-size: 24px; font-weight: 900; color: #60a5fa; margin-top: 2px;">${monthCentSum.toFixed(2)} c</div>
               <span style="font-size: 10px; color: #cbd5e1; font-family: monospace;">(${centToHHMM(monthCentSum)})</span>
             </div>
             <div style="text-align: right; background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 8px; border: 1px solid #334155;">
               <div style="font-size: 10px; margin-bottom: 2px;">Repas Midi : <strong style="color: #60a5fa;">${monthMidiSum}</strong> (${totalMidiCost}€)</div>
               <div style="font-size: 10px;">Repas Soir : <strong style="color: #60a5fa;">${monthSoirSum}</strong> (${totalSoirCost}€)</div>
-              <div style="font-size: 11px; font-weight: bold; color: #34d399; margin-top: 4px; border-top: 1px solid #334155; padding-top: 4px;">Total Repas : ${totalGlobalRepas} €</div>
+              <div style="font-size: 11px; font-weight: bold; color: #34d399; margin-top: 4px; border-top: 1px solid #334155; padding-top: 4px;">Total Indemnités : ${totalGlobalRepas} €</div>
             </div>
           </div>
 
-          <!-- Décompte Absences Card -->
           <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; margin-bottom: 20px;">
-            <h3 style="font-size: 10px; font-weight: bold; text-transform: uppercase; color: #64748b; margin: 0 0 10px 0; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px;">Récapitulatif des Congés & Absences</h3>
+            <h3 style="font-size: 10px; font-weight: bold; text-transform: uppercase; color: #64748b; margin: 0 0 10px 0; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px;">Récapitulatif des Congés & Absences (Cumul Mois)</h3>
             <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; text-align: center;">
               <div style="background: white; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0;">
                 <span style="display: block; font-size: 8px; color: #64748b; font-weight: bold;">CONGÉS PAYÉS</span>
@@ -1148,7 +1152,6 @@
             </div>
           </div>
 
-          <!-- Zone Signature -->
           <div style="border: 1px solid #e2e8f0; padding: 14px; border-radius: 12px; background: white;">
             <p style="font-size: 9px; color: #94a3b8; margin: 0 0 40px 0;">Observations / Visa Exploitation :</p>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 9px; border-top: 1px solid #f1f5f9; padding-top: 10px; color: #475569;">
